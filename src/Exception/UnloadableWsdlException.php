@@ -16,4 +16,9 @@ final class UnloadableWsdlException extends \RuntimeException
     {
         return new self('Could not load WSDL from location "'.$location.'".');
     }
+
+    public static function fromException(\Exception $e)
+    {
+        return new self($e->getMessage(), $e->getCode(), $e);
+    }
 }

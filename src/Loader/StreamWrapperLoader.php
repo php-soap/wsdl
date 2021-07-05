@@ -21,10 +21,14 @@ class StreamWrapperLoader implements WsdlLoader
     
     public function __invoke(string $location): string
     {
-        $content = file_get_contents(
-            $location,
-            context: is_resource($this->context) ? $this->context : null
-        );
+        try {
+            $content = file_get_contents(
+                $location,
+                context: is_resource($this->context) ? $this->context : null
+            );
+        } catch (\Exception $e) {
+            throw UnloadableWsdlException::fromException($e);
+        }
 
         if ($content === false) {
             throw UnloadableWsdlException::fromLocation($location);
