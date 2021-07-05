@@ -12,7 +12,7 @@ final class UnloadableWsdlException extends \RuntimeException
         parent::__construct($message, $code, $previous);
     }
 
-    public static function fromLocation(string $location)
+    public static function fromLocation(string $location): self
     {
         return new self('Could not load WSDL from location "'.$location.'".');
     }

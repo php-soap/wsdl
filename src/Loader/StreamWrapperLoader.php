@@ -8,6 +8,8 @@ use Soap\Wsdl\Exception\UnloadableWsdlException;
 class StreamWrapperLoader implements WsdlLoader
 {
     /**
+     * This must be a valid stream context.
+     *
      * @var null|resource
      */
     private $context;
