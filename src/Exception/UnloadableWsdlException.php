@@ -3,11 +3,13 @@ declare(strict_types=1);
 
 namespace Soap\Wsdl\Exception;
 
+use Exception;
+use RuntimeException;
 use Throwable;
 
-final class UnloadableWsdlException extends \RuntimeException
+final class UnloadableWsdlException extends RuntimeException
 {
-    protected function __construct($message = "", $code = 0, Throwable $previous = null)
+    protected function __construct(string $message = "", int $code = 0, Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }
@@ -17,8 +19,8 @@ final class UnloadableWsdlException extends \RuntimeException
         return new self('Could not load WSDL from location "'.$location.'".');
     }
 
-    public static function fromException(\Exception $e)
+    public static function fromException(Exception $e): self
     {
-        return new self($e->getMessage(), $e->getCode(), $e);
+        return new self($e->getMessage(), (int)$e->getCode(), $e);
     }
 }

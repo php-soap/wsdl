@@ -3,9 +3,10 @@ declare(strict_types=1);
 
 namespace Soap\Wsdl\Loader;
 
+use Exception;
 use Soap\Wsdl\Exception\UnloadableWsdlException;
 
-class StreamWrapperLoader implements WsdlLoader
+final class StreamWrapperLoader implements WsdlLoader
 {
     /**
      * This must be a valid stream context.
@@ -14,6 +15,9 @@ class StreamWrapperLoader implements WsdlLoader
      */
     private $context;
 
+    /**
+     * @param null|resource $context
+     */
     public function __construct($context = null)
     {
         $this->context = $context;
@@ -26,7 +30,7 @@ class StreamWrapperLoader implements WsdlLoader
                 $location,
                 context: is_resource($this->context) ? $this->context : null
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw UnloadableWsdlException::fromException($e);
         }
 
