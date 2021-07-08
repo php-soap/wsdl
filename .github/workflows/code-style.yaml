@@ -22,4 +22,4 @@ jobs:
             - name: Install dependencies
               run: composer update --prefer-dist --no-progress --no-suggest ${{ matrix.composer-options }}
             - name: Run the tests
-              run: ./tools/php-cs-fixer.phar fix --dry-run
+              run: ./tools/php-cs-fixer.phar fix --dry-run --diff
