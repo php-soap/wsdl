@@ -10,7 +10,6 @@ use Soap\Wsdl\Exception\UnloadableWsdlException;
 
 final class UnloadableWsdlExceptionTest extends TestCase
 {
-    
     public function test_it_can_not_load_from_location(): void
     {
         $this->expectException(RuntimeException::class);
@@ -20,7 +19,6 @@ final class UnloadableWsdlExceptionTest extends TestCase
         throw UnloadableWsdlException::fromLocation('location.wsdl');
     }
 
-    
     public function test_it_can_not_load_with_exception(): void
     {
         $this->expectException(RuntimeException::class);
