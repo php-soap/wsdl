@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" />
+</wsdl:definitions>
