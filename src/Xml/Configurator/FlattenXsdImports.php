@@ -6,20 +6,17 @@ namespace Soap\Wsdl\Xml\Configurator;
 
 use DOMDocument;
 use DOMElement;
-use DOMNode;
 use Soap\Wsdl\Exception\UnloadableWsdlException;
 use Soap\Wsdl\Loader\Context\FlatteningContext;
 use Soap\Wsdl\Loader\WsdlLoader;
 use Soap\Wsdl\Uri\IncludePathBuilder;
 use Soap\Wsdl\Xml\Exception\FlattenException;
 use Soap\Xml\Xpath\WsdlPreset;
-use VeeWee\Xml\Dom\Collection\NodeList;
 use VeeWee\Xml\Dom\Configurator\Configurator;
 use VeeWee\Xml\Dom\Document;
 use VeeWee\Xml\Exception\RuntimeException;
 use function VeeWee\Xml\Dom\Locator\Node\children;
 use function VeeWee\Xml\Dom\Manipulator\Node\append_external_node;
-use function VeeWee\Xml\Dom\Predicate\is_element;
 
 final class FlattenXsdImports implements Configurator
 {

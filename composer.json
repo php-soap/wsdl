@@ -29,11 +29,5 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5"
-    },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "/Users/verweto/Projects/github/veewee/xml"
-        }
-    ]
+    }
 }
