@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<definitions name="InteropTest"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    targetNamespace="http://soapinterop.org/">
+    <types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://soapinterop.org/xsd">
+            <xsd:import schemaLocation="xsd/store1.xsd" namespace="http://soapinterop.org/store1" />
+            <xsd:import schemaLocation="xsd/store2.xsd" namespace="http://soapinterop.org/store2" />
+        </schema>
+    </types>
+</definitions>

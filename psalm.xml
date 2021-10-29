@@ -21,4 +21,7 @@
             <directory name="tests" />
         </ignoreFiles>
     </projectFiles>
+    <ignoreExceptions>
+        <class name="InvalidArgumentException" />
+    </ignoreExceptions>
 </psalm>

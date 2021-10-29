@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Soap\Wsdl\Xml\Exception;
 
-final class FlattenException extends \RuntimeException
+use RuntimeException;
+
+final class FlattenException extends RuntimeException
 {
     public static function noLocation(string $elementName): self
     {
@@ -16,6 +18,5 @@ final class FlattenException extends \RuntimeException
         $target = $location ? ' from '.$location : '';
 
         return new self("Parsing Schema: can't import schema{$target}. Namespace must not match the enclosing schema 'targetNamespace'");
-
     }
 }

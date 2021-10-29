@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<definitions name="InteropTest"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    targetNamespace="http://soapinterop.org/">
+    <import namespace="http://soapinterop.org/" location="circular-xsd.wsdl" />
+</definitions>

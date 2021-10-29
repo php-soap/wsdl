@@ -13,20 +13,20 @@ use function VeeWee\Xml\Dom\Configurator\comparable;
 final class FlattenWsdlImportsTest extends TestCase
 {
     /**
-     * @test
+     *
      * @dataProvider provideTestCases
      */
-    public function it_can_flatten_wsdl_imports(string $wsdlUri, Document $expected): void
+    public function test_it_can_flatten_wsdl_imports(string $wsdlUri, Document $expected): void
     {
+        $wsdl = Document::fromXmlFile($wsdlUri);
         $configurator = new FlattenWsdlImports(
             new StreamWrapperLoader(),
             $wsdlUri,
-            new FlatteningContext()
+            FlatteningContext::forWsdl($wsdlUri, $wsdl)
         );
+        $flattened = Document::fromUnsafeDocument($wsdl->toUnsafeDocument(), $configurator, comparable());
 
-        $wsdl = Document::fromXmlFile($wsdlUri, $configurator, comparable());
-
-        self::assertSame($expected->toXmlString(), $wsdl->toXmlString());
+        static::assertSame($expected->toXmlString(), $flattened->toXmlString());
     }
 
     public function provideTestCases()
