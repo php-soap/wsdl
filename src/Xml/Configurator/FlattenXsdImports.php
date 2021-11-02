@@ -49,7 +49,7 @@ final class FlattenXsdImports implements Configurator
         foreach ($imports as $import) {
             $schemas = match ($import->localName) {
                 'include', 'redefine' => $this->includeSchema($import),
-                'import' => $this->importSchema($document, $import),
+                'import' => $this->importSchema($import),
             };
 
             foreach ($schemas as $schema) {
@@ -69,10 +69,13 @@ final class FlattenXsdImports implements Configurator
      */
     private function includeSchema(DOMElement $include): iterable
     {
+        // All includes and redefines require a schemLocation attribute
         if (!$location = $include->getAttribute('schemaLocation')) {
             throw FlattenException::noLocation($include->localName);
         }
 
+        // Include tags can be removed, since the schema will be made available in the types
+        // using the namespace it defines.
         $schemas = $this->loadSchemas($location);
         $include->remove();
 
@@ -82,25 +85,38 @@ final class FlattenXsdImports implements Configurator
     /**
      * @throws RuntimeException
      * @throws UnloadableWsdlException
+     * @throws FlattenException
      *
      * @return iterable<DOMElement>
      */
-    private function importSchema(DOMDocument $wsdl, DOMElement $import): iterable
+    private function importSchema(DOMElement $import): iterable
     {
+        // xsd:import tags don't require a location!
         $location = $import->getAttribute('schemaLocation');
+        if (!$location) {
+            return [];
+        }
+
+        // Normally an import has an owner document, since it is coming from xpath on an existing document
+        // However, static analysis does not know about this.
+        if (!$import->ownerDocument) {
+            return [];
+        }
+
+        // Find the schema that wants to import the new schema:
+        $doc = Document::fromUnsafeDocument($import->ownerDocument);
+        $xpath = $doc->xpath(new WsdlPreset($doc));
+        /** @var DOMElement $schema */
+        $schema = $xpath->querySingle('ancestor::schema:schema', $import);
+
+        // Detect namespaces from both the current schema and the import
         $namespace = $import->getAttribute('namespace');
-        $tns = $wsdl->documentElement->getAttribute('targetNamespace');
+        $tns = $schema->getAttribute('targetNamespace');
 
         // Imports can only deal with different namespaces.
         // You'll need to use "include" if you want to inject something in the same namespace.
         if ($tns && $namespace && $tns === $namespace) {
-            // TODO : exception seems a bit too harsh ... Regular import ok?
-            //throw FlattenException::unableToImportXsd($location);
-        }
-
-        // xsd:import tags don't require a location!
-        if (!$location) {
-            return [];
+            throw FlattenException::unableToImportXsd($location);
         }
 
         $schemas = $this->loadSchemas($location);
