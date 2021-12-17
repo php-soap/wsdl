@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<definitions
+        xmlns="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:tns="http://soapinterop.org/"
+        targetNamespace="http://soapinterop.org/"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <types>
+        <xsd:schema targetNamespace="http://soapinterop.org/store1"
+                    xmlns:foo="http://foo"
+                    xmlns:bar="http://bar">
+            <xsd:complexType name="Store">
+                <xsd:sequence>
+                    <xsd:element minOccurs="1" maxOccurs="1" name="Attribute1" type="string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+    </types>
+</definitions>

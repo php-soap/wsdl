@@ -83,6 +83,10 @@ final class FlatteningLoaderTest extends TestCase
             'wsdl' => FIXTURE_DIR.'/flattening/include-nested.wsdl',
             'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/include.wsdl', comparable()),
         ];
+        yield 'include-additional-namespaces' => [
+            'wsdl' => FIXTURE_DIR.'/flattening/include-namespaces.wsdl',
+            'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/include-namespaces.wsdl', comparable()),
+        ];
 
         //
         // WSDLs

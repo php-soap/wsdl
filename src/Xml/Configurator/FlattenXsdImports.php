@@ -14,9 +14,11 @@ use Soap\Xml\Xpath\WsdlPreset;
 use VeeWee\Xml\Dom\Configurator\Configurator;
 use VeeWee\Xml\Dom\Document;
 use VeeWee\Xml\Exception\RuntimeException;
-use function Psl\Vec\flat_map;
+use function VeeWee\Xml\Dom\Locator\Element\parent_element;
 use function VeeWee\Xml\Dom\Locator\Node\children;
+use function VeeWee\Xml\Dom\Manipulator\Element\copy_named_xmlns_attributes;
 use function VeeWee\Xml\Dom\Manipulator\Node\append_external_node;
+use function VeeWee\Xml\Dom\Manipulator\Node\remove;
 use function VeeWee\Xml\Dom\Manipulator\Node\replace_by_external_nodes;
 
 /**
@@ -53,12 +55,12 @@ final class FlattenXsdImports implements Configurator
 
         $types = $this->context->types();
         foreach ($imports as $import) {
-            $schemas = match ($import->localName) {
+            $schema = match ($import->localName) {
                 'include', 'redefine' => $this->includeSchema($import),
                 'import' => $this->importSchema($import),
             };
 
-            foreach ($schemas as $schema) {
+            if ($schema) {
                 append_external_node($types, $schema);
             }
         }
@@ -70,10 +72,8 @@ final class FlattenXsdImports implements Configurator
      * @throws RuntimeException
      * @throws UnloadableWsdlException
      * @throws FlattenException
-     *
-     * @return iterable<DOMElement>
      */
-    private function includeSchema(DOMElement $include): iterable
+    private function includeSchema(DOMElement $include): ?DOMElement
     {
         // All includes and redefines require a schemLocation attribute
         if (!$location = $include->getAttribute('schemaLocation')) {
@@ -90,38 +90,41 @@ final class FlattenXsdImports implements Configurator
 
         // Include tags can be removed, since the schema will be made available in the types
         // using the namespace it defines.
-        $schemas = $this->loadSchemas(
+        $schema = $this->loadSchema(
             $location,
             fn ($absolutePath): ?string => $this->context->include($absolutePath)
         );
 
-        $included = flat_map($schemas, static fn (DOMElement $schema) => children($schema));
+        if (!$schema) {
+            remove($include);
+            return null;
+        }
 
-        replace_by_external_nodes($include, $included);
+        copy_named_xmlns_attributes(parent_element($include), $schema);
+        replace_by_external_nodes($include, children($schema));
+
         // Todo -> append the redefine's children as well after import
 
-        return [];
+        return null;
     }
 
     /**
      * @throws RuntimeException
      * @throws UnloadableWsdlException
      * @throws FlattenException
-     *
-     * @return iterable<DOMElement>
      */
-    private function importSchema(DOMElement $import): iterable
+    private function importSchema(DOMElement $import): ?DOMElement
     {
         // xsd:import tags don't require a location!
         $location = $import->getAttribute('schemaLocation');
         if (!$location) {
-            return [];
+            return null;
         }
 
         // Normally an import has an owner document, since it is coming from xpath on an existing document
         // However, static analysis does not know about this.
         if (!$import->ownerDocument) {
-            return [];
+            return null;
         }
 
         // Find the schema that wants to import the new schema:
@@ -140,13 +143,13 @@ final class FlattenXsdImports implements Configurator
             throw FlattenException::unableToImportXsd($location);
         }
 
-        $schemas = $this->loadSchemas(
+        $schema = $this->loadSchema(
             $location,
             fn ($absolutePath): ?string => $this->context->import($absolutePath)
         );
         $import->removeAttribute('schemaLocation');
 
-        return $schemas;
+        return $schema;
     }
 
     /**
@@ -154,22 +157,20 @@ final class FlattenXsdImports implements Configurator
      *
      * @throws RuntimeException
      * @throws UnloadableWsdlException
-     *
-     * @return iterable<DOMElement>
      */
-    private function loadSchemas(string $location, callable $loader): iterable
+    private function loadSchema(string $location, callable $loader): ?DOMElement
     {
         $path = IncludePathBuilder::build($location, $this->currentLocation);
         $result = $loader($path);
 
         if (!$result) {
-            return [];
+            return null;
         }
 
-        $imported = Document::fromXmlString($result)->toUnsafeDocument();
+        $imported = Document::fromXmlString($result);
+        /** @var DOMElement $schema */
+        $schema = $imported->xpath(new WsdlPreset($imported))->querySingle('/schema:schema');
 
-        return children($imported)
-            ->expectAllOfType(DOMElement::class)
-            ->filter(static fn (DOMElement $element) => $element->localName === 'schema');
+        return $schema;
     }
 }
