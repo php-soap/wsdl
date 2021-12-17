@@ -20,9 +20,8 @@ final class FlattenWsdlImportsTest extends TestCase
     {
         $wsdl = Document::fromXmlFile($wsdlUri);
         $configurator = new FlattenWsdlImports(
-            new StreamWrapperLoader(),
             $wsdlUri,
-            FlatteningContext::forWsdl($wsdlUri, $wsdl)
+            FlatteningContext::forWsdl($wsdlUri, $wsdl, new StreamWrapperLoader())
         );
         $flattened = Document::fromUnsafeDocument($wsdl->toUnsafeDocument(), $configurator, comparable());
 

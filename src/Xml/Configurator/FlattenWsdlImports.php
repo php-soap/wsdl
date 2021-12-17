@@ -8,7 +8,6 @@ use DOMDocument;
 use DOMElement;
 use Soap\Wsdl\Exception\UnloadableWsdlException;
 use Soap\Wsdl\Loader\Context\FlatteningContext;
-use Soap\Wsdl\Loader\WsdlLoader;
 use Soap\Wsdl\Uri\IncludePathBuilder;
 use Soap\Xml\Xpath\WsdlPreset;
 use VeeWee\Xml\Dom\Configurator\Configurator;
@@ -22,7 +21,6 @@ use function VeeWee\Xml\Dom\Manipulator\Node\replace_by_external_nodes;
 final class FlattenWsdlImports implements Configurator
 {
     public function __construct(
-        private WsdlLoader $wsdlLoader,
         private string $currentLocation,
         private FlatteningContext $context
     ) {
@@ -61,12 +59,13 @@ final class FlattenWsdlImports implements Configurator
             $this->currentLocation
         );
 
-        if (!$this->context->announceImport($location)) {
+        $result = $this->context->import($location);
+        if (!$result) {
             remove($import);
             return;
         }
 
-        $imported = Document::fromXmlString(($this->wsdlLoader)($location));
+        $imported = Document::fromXmlString($result);
         $definitions = $imported->map(document_element());
 
         replace_by_external_nodes(

@@ -15,7 +15,7 @@ final class FlatteningLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->loader = FlatteningLoader::createForLoader(new StreamWrapperLoader());
+        $this->loader = new FlatteningLoader(new StreamWrapperLoader());
     }
 
     /**
@@ -49,19 +49,39 @@ final class FlatteningLoaderTest extends TestCase
         ];
 
         //
-        // XSDs
+        // XSDs Imports
         //
         yield 'single-xsd' => [
             'wsdl' => FIXTURE_DIR.'/flattening/single-xsd.wsdl',
             'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/single-xsd-result.wsdl', comparable()),
         ];
-        yield 'once-xsd' => [
+        yield 'import-once-xsd' => [
             'wsdl' => FIXTURE_DIR.'/flattening/once-xsd.wsdl',
             'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/once-xsd-result.wsdl', comparable()),
         ];
-        yield 'multi-xsd' => [
+        yield 'import-multi-xsd' => [
             'wsdl' => FIXTURE_DIR.'/flattening/multi-xsd.wsdl',
             'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/multi-xsd-result.wsdl', comparable()),
+        ];
+
+        //
+        // XSD Includes
+        //
+        yield 'include-single' => [
+            'wsdl' => FIXTURE_DIR.'/flattening/include.wsdl',
+            'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/include.wsdl', comparable()),
+        ];
+        yield 'include-multi' => [
+            'wsdl' => FIXTURE_DIR.'/flattening/multi-include.wsdl',
+            'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/multi-include.wsdl', comparable()),
+        ];
+        yield 'include-nested' => [
+            'wsdl' => FIXTURE_DIR.'/flattening/include-nested.wsdl',
+            'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/include.wsdl', comparable()),
+        ];
+        yield 'imported-include-nested' => [
+            'wsdl' => FIXTURE_DIR.'/flattening/include-nested.wsdl',
+            'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/include.wsdl', comparable()),
         ];
 
         //

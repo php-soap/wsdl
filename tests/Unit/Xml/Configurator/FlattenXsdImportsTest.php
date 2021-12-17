@@ -20,9 +20,8 @@ final class FlattenXsdImportsTest extends TestCase
     {
         $wsdl = Document::fromXmlFile($wsdlUri);
         $configurator = new FlattenXsdImports(
-            new StreamWrapperLoader(),
             $wsdlUri,
-            FlatteningContext::forWsdl($wsdlUri, $wsdl)
+            FlatteningContext::forWsdl($wsdlUri, $wsdl, new StreamWrapperLoader())
         );
         $flattened = Document::fromUnsafeDocument($wsdl->toUnsafeDocument(), $configurator, comparable());
 
@@ -45,7 +44,7 @@ final class FlattenXsdImportsTest extends TestCase
         ];
         yield 'circular-xsd' => [
             'wsdl' => FIXTURE_DIR.'/flattening/circular-xsd.wsdl',
-            'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/circular-xsd-intermediate-result.wsdl', comparable()),
+            'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/circular-xsd-result.wsdl', comparable()),
         ];
     }
 }

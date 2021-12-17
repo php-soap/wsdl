@@ -8,20 +8,26 @@ use DOMDocument;
 use DOMElement;
 use Soap\Wsdl\Exception\UnloadableWsdlException;
 use Soap\Wsdl\Loader\Context\FlatteningContext;
-use Soap\Wsdl\Loader\WsdlLoader;
 use Soap\Wsdl\Uri\IncludePathBuilder;
 use Soap\Wsdl\Xml\Exception\FlattenException;
 use Soap\Xml\Xpath\WsdlPreset;
 use VeeWee\Xml\Dom\Configurator\Configurator;
 use VeeWee\Xml\Dom\Document;
 use VeeWee\Xml\Exception\RuntimeException;
+use function Psl\Vec\flat_map;
 use function VeeWee\Xml\Dom\Locator\Node\children;
 use function VeeWee\Xml\Dom\Manipulator\Node\append_external_node;
+use function VeeWee\Xml\Dom\Manipulator\Node\replace_by_external_nodes;
 
+/**
+ * @TODO check https://github.com/pkielgithub/SchemaLightener/blob/master/src/SchemaLightener.java implementation
+ * -> http://www.strategicdevelopment.io/tools/index.php
+ * -> http://www.strategicdevelopment.io/tools/SchemaLightener.php
+ * -> http://www.strategicdevelopment.io/tools/WSDLFlattener.php
+ */
 final class FlattenXsdImports implements Configurator
 {
     public function __construct(
-        private WsdlLoader $wsdlLoader,
         private string $currentLocation,
         private FlatteningContext $context
     ) {
@@ -74,12 +80,27 @@ final class FlattenXsdImports implements Configurator
             throw FlattenException::noLocation($include->localName);
         }
 
+        // https://docs.microsoft.com/en-us/previous-versions/dotnet/netframework-4.0/ms256198(v=vs.100)
+        /*
+         * The included schema document must meet one of the following conditions.
+            -    It must have the same target namespace as the containing schema document.
+            -    It must not have a target namespace specified (no targetNamespace attribute).
+         */
+
+
         // Include tags can be removed, since the schema will be made available in the types
         // using the namespace it defines.
-        $schemas = $this->loadSchemas($location);
-        $include->remove();
+        $schemas = $this->loadSchemas(
+            $location,
+            fn ($absolutePath): ?string => $this->context->include($absolutePath)
+        );
 
-        return $schemas;
+        $included = flat_map($schemas, static fn (DOMElement $schema) => children($schema));
+
+        replace_by_external_nodes($include, $included);
+        // Todo -> append the redefine's children as well after import
+
+        return [];
     }
 
     /**
@@ -119,28 +140,33 @@ final class FlattenXsdImports implements Configurator
             throw FlattenException::unableToImportXsd($location);
         }
 
-        $schemas = $this->loadSchemas($location);
+        $schemas = $this->loadSchemas(
+            $location,
+            fn ($absolutePath): ?string => $this->context->import($absolutePath)
+        );
         $import->removeAttribute('schemaLocation');
 
         return $schemas;
     }
 
     /**
+     * @param callable(string): ?string $loader
+     *
      * @throws RuntimeException
      * @throws UnloadableWsdlException
      *
      * @return iterable<DOMElement>
      */
-    private function loadSchemas(string $location): iterable
+    private function loadSchemas(string $location, callable $loader): iterable
     {
         $path = IncludePathBuilder::build($location, $this->currentLocation);
+        $result = $loader($path);
 
-        if (!$this->context->announceImport($path)) {
+        if (!$result) {
             return [];
         }
 
-        $xml = ($this->wsdlLoader)($path);
-        $imported = Document::fromXmlString($xml)->toUnsafeDocument();
+        $imported = Document::fromXmlString($result)->toUnsafeDocument();
 
         return children($imported)
             ->expectAllOfType(DOMElement::class)
