@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<definitions
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:tns="http://soapinterop.org/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns="http://schemas.xmlsoap.org/wsdl/"
+        targetNamespace="http://soapinterop.org/">
+
+</definitions>

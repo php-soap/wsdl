@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<definitions name="InteropTest"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    targetNamespace="http://soapinterop.org/">
+    <types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://soapinterop.org/xsd">
+            <xsd:import namespace="http://soapinterop.org/circular" />
+            <xsd:import namespace="http://soapinterop.org/circular-common" />
+        </schema>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://soapinterop.org/circular-common">
+            <xsd:import namespace="http://soapinterop.org/circular" />
+        </schema>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://soapinterop.org/circular">
+            <xsd:import namespace="http://soapinterop.org/circular-common" />
+        </schema>
+    </types>
+</definitions>

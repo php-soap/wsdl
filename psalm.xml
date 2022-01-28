@@ -2,7 +2,6 @@
 <psalm
     errorLevel="1"
     resolveFromConfigFile="true"
-    forbidEcho="true"
     strictBinaryOperands="true"
     phpVersion="8.0"
     allowStringToStandInForClass="true"
@@ -21,4 +20,8 @@
             <directory name="tests" />
         </ignoreFiles>
     </projectFiles>
+    <ignoreExceptions>
+        <class name="InvalidArgumentException" />
+        <class name="Psl\Exception\InvariantViolationException" />
+    </ignoreExceptions>
 </psalm>

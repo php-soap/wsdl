@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<definitions
+        xmlns="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:tns="http://soapinterop.org/"
+        targetNamespace="http://soapinterop.org/"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <types>
+        <xsd:import schemaLocation="xsd/include.xsd" namespace="http://soapinterop.org/store1" />
+    </types>
+</definitions>

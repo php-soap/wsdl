@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<definitions
+        xmlns="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:tns="http://soapinterop.org/"
+        targetNamespace="http://soapinterop.org/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    >
+    <import namespace="http://soapinterop.org/" location="functional/float.wsdl" />
+
+    <types>
+        <xsd:schema />
+    </types>
+</definitions>

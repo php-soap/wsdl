@@ -56,6 +56,21 @@ $loader = new StreamWrapperLoader(
 $contents = $loader($wsdl);
 ```
 
+### FlatteningLoader
+
+This loader can be used if your WSDL file contains WSDL or XSD imports.
+It will any other loader internally to load all the parts.
+The result of this loader is a completely flattened WSDL file which you can e.g. cache on your local filesystem.
+
+```php
+use Soap\Wsdl\Loader\FlatteningLoader;
+use Soap\Wsdl\Loader\StreamWrapperLoader;
+
+$loader = new FlatteningLoader(new StreamWrapperLoader());
+
+$contents = $loader($wsdl);
+```
+
 
 ## WSDL Validators
 
@@ -92,4 +107,3 @@ $wsdl = Document::fromXmlString((new StreamWrapperLoader())($file));
 echo "Validating WSDL:".PHP_EOL;
 $issues = $wsdl->validate(new Validator\WsdlSyntaxValidator());
 echo ($issues->count() ? $issues->toString() : '🟢 ALL GOOD').PHP_EOL;
-```

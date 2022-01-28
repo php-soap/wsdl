@@ -1,0 +1,3 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://soapinterop.org/circular-common">
+    <xsd:import schemaLocation="circular.xsd" namespace="http://soapinterop.org/circular" />
+</schema>
