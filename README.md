@@ -71,6 +71,80 @@ $loader = new FlatteningLoader(new StreamWrapperLoader());
 $contents = $loader($wsdl);
 ```
 
+### CallbackLoader
+
+This loader can be used if you want to have more control about how to load a WSDL.
+It can be used to decorate another loader, add debug statements, apply custom loading logic, ...
+
+```php
+use Soap\Wsdl\Loader\CallbackLoader;
+
+$loader = new CallbackLoader(static function (string $location) use ($loader, $style): string {
+    $style->write('> Loading '.$location . '...');
+
+    $result =  $loader($location);
+    $style->writeln(' DONE!');
+
+    return $result;
+})
+
+$contents = $loader($wsdl);
+```
+
+## WSDL CLI Tools
+
+```
+wsdl-tools 1.0.0
+
+Available commands:
+  completion  Dump the shell completion script
+  flatten     Flatten a remote or local WSDL file into 1 file that contains all includes.
+  help        Display help for a command
+  list        List commands
+  validate    Run validations a (flattened) WSDL file.
+```
+
+### Flattening
+
+```
+./bin/wsdl flatten 'https://your/?wsdl' out.wsdl
+```
+
+This command will download the provided WSDL location.
+If any imports are detected, it will download these as well.
+The final result is stored in a single WSDL file.
+
+### Validating
+
+```
+./bin/wsdl validate out.wsdl
+```
+
+This command performs some basic validations on the provided WSDL file.
+If your WSDL contains any imports, you'll have to flatten the WSDL into a single file first.
+
+### Custom WSDL Loader
+
+By default, all CLI tools use the StreamWrapperLoader.
+All CLI tools have a `--loader=file.php` option that can be used to apply a custom WSDL loader.
+This can be handy if your WSDL is located behind authentication or if you want to get control over the HTTP level.
+
+Example custom PHP loader:
+
+```php
+<?php
+
+use Soap\Wsdl\Loader\StreamWrapperLoader;
+
+return new StreamWrapperLoader(
+    stream_context_create([
+        'http' => [
+            'method' => 'GET',
+            'header'=> sprintf('Authorization: Basic %s', base64_encode('username:password')),
+        ],        
+    ])
+);
+```
 
 ## WSDL Validators
 
