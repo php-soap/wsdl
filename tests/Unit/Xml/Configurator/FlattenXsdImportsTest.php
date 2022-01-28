@@ -46,5 +46,17 @@ final class FlattenXsdImportsTest extends TestCase
             'wsdl' => FIXTURE_DIR.'/flattening/circular-xsd.wsdl',
             'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/circular-xsd-result.wsdl', comparable()),
         ];
+        yield 'redefine-xsd' => [
+            'wsdl' => FIXTURE_DIR.'/flattening/redefine-xsd.wsdl',
+            'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/redefine-xsd-result.wsdl', comparable()),
+        ];
+        yield 'tnsless-xsd' => [
+            'wsdl' => FIXTURE_DIR.'/flattening/tnsless-xsd.wsdl',
+            'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/tnsless-xsd-result.wsdl', comparable()),
+        ];
+        yield 'grouped-xsd' => [
+            'wsdl' => FIXTURE_DIR.'/flattening/grouped-xsd.wsdl',
+            'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/grouped-xsd-result.wsdl', comparable()),
+        ];
     }
 }

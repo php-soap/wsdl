@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<definitions name="InteropTest"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    targetNamespace="http://soapinterop.org/">
+    <types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://soapinterop.org/xsd">
+            <xsd:import namespace="http://soapinterop.org/store1" />
+            <xsd:import namespace="http://soapinterop.org/store1" />
+        </schema>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://soapinterop.org/store1">
+            <xsd:complexType name="Store">
+                <xsd:sequence>
+                    <element minOccurs="1" maxOccurs="1" name="Attribute1" type="string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="StoreInfo">
+                <xsd:sequence>
+                    <element minOccurs="1" maxOccurs="1" name="Attribute1" type="string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </schema>
+    </types>
+</definitions>
