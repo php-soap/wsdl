@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace Soap\Wsdl\Xml;
 
+use Closure;
 use DOMDocument;
 use Soap\Wsdl\Loader\Context\FlatteningContext;
 use Soap\Wsdl\Xml\Configurator\FlattenTypes;
 use Soap\Wsdl\Xml\Configurator\FlattenWsdlImports;
 use Soap\Wsdl\Xml\Configurator\FlattenXsdImports;
 use VeeWee\Xml\Dom\Document;
+use VeeWee\Xml\Exception\RuntimeException;
 use function Psl\Fun\pipe;
 use function Psl\Fun\when;
 use function VeeWee\Xml\Dom\Configurator\utf8;
@@ -16,7 +18,7 @@ use function VeeWee\Xml\Dom\Configurator\utf8;
 final class Flattener
 {
     /**
-     * @throw RuntimeException
+     * @throws RuntimeException
      */
     public function __invoke(
         string $location,
@@ -30,11 +32,11 @@ final class Flattener
                 when(
                     static fn (DOMDocument $document): bool => $document->documentElement->localName === 'definitions',
                     pipe(
-                        new FlattenWsdlImports($location, $context),
-                        new FlattenTypes(),
-                        new FlattenXsdImports($location, $context)
+                        Closure::fromCallable(new FlattenWsdlImports($location, $context)),
+                        Closure::fromCallable(new FlattenTypes()),
+                        Closure::fromCallable(new FlattenXsdImports($location, $context)),
                     ),
-                    new FlattenXsdImports($location, $context)
+                    Closure::fromCallable(new FlattenXsdImports($location, $context))
                 )
             )
         )->toXmlString();

@@ -7,6 +7,8 @@ namespace Soap\Wsdl\Xml\Configurator;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
+use Psl\Exception\InvariantViolationException;
+use Psl\Type\Exception\AssertException;
 use Soap\Wsdl\Exception\UnloadableWsdlException;
 use Soap\Wsdl\Loader\Context\FlatteningContext;
 use Soap\Wsdl\Uri\IncludePathBuilder;
@@ -15,14 +17,12 @@ use Soap\Xml\Xpath\WsdlPreset;
 use VeeWee\Xml\Dom\Configurator\Configurator;
 use VeeWee\Xml\Dom\Document;
 use VeeWee\Xml\Exception\RuntimeException;
-use function Psl\Fun\identity;
-use function Psl\Result\wrap;
-use function VeeWee\Xml\Dom\Locator\Element\parent_element;
+use function Psl\Type\nullable;
+use function Psl\Type\object;
 use function VeeWee\Xml\Dom\Locator\Node\children;
 use function VeeWee\Xml\Dom\Manipulator\Element\copy_named_xmlns_attributes;
 use function VeeWee\Xml\Dom\Manipulator\Node\append_external_node;
 use function VeeWee\Xml\Dom\Manipulator\Node\remove;
-use function VeeWee\Xml\Dom\Manipulator\Node\replace_by_external_nodes;
 
 /**
  * @TODO check https://github.com/pkielgithub/SchemaLightener/blob/master/src/SchemaLightener.java implementation
@@ -91,12 +91,7 @@ final class FlattenXsdImports implements Configurator
             -    It must not have a target namespace specified (no targetNamespace attribute).
          */
 
-        // Include tags can be removed, since the schema will be made available in the types
-        // using the namespace it defines.
-        $schema = $this->loadSchema(
-            $location,
-            fn ($absolutePath): ?string => $this->context->import($absolutePath)
-        );
+        $schema = $this->loadSchema($location);
 
         // Redefines overwrite tags from includes.
         // The children of redefine elements are appended to the newly loaded schema.
@@ -106,6 +101,8 @@ final class FlattenXsdImports implements Configurator
             );
         }
 
+        // Include tags can be removed, since the schema will be made available in the types
+        // using the namespace it defines. The include/redefine tag will have no purpose anymore.
         remove($include);
 
         return $schema;
@@ -146,25 +143,22 @@ final class FlattenXsdImports implements Configurator
             throw FlattenException::unableToImportXsd($location);
         }
 
-        $schema = $this->loadSchema(
-            $location,
-            fn ($absolutePath): ?string => $this->context->import($absolutePath)
-        );
+        // After loading the schema, the import element needs to remain in the XSD.
+        // The schema location is removed, since it will be embedded in the WSDL.
+        $schema = $this->loadSchema($location);
         $import->removeAttribute('schemaLocation');
 
         return $schema;
     }
 
     /**
-     * @param callable(string): ?string $loader
-     *
      * @throws RuntimeException
      * @throws UnloadableWsdlException
      */
-    private function loadSchema(string $location, callable $loader): ?DOMElement
+    private function loadSchema(string $location): ?DOMElement
     {
         $path = IncludePathBuilder::build($location, $this->currentLocation);
-        $result = $loader($path);
+        $result = $this->context->import($path);
 
         if (!$result) {
             return null;
@@ -180,6 +174,10 @@ final class FlattenXsdImports implements Configurator
     /**
      * This function registers the newly provided schema in the WSDL types section.
      * It groups all imports by targetNamespace.
+     *
+     * @throws RuntimeException
+     * @throws InvariantViolationException
+     * @throws AssertException
      */
     private function registerSchemaInTypes(DOMElement $schema): void
     {
@@ -189,7 +187,8 @@ final class FlattenXsdImports implements Configurator
         $tns = $schema->getAttribute('targetNamespace');
 
         $query = $tns ? './schema:schema[@targetNamespace=\''.$tns.'\']' : './schema:schema[not(@targetNamespace)]';
-        $existingSchema = $xpath->query($query, $types)->first();
+        $existingSchema = nullable(object(DOMElement::class))
+            ->assert($xpath->query($query, $types)->first());
 
         // If no schema exists yet: Add the newly loaded schema as a completely new schema in the WSDL types.
         if (!$existingSchema) {

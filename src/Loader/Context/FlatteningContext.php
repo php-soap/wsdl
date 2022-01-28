@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Soap\Wsdl\Loader\Context;
 
 use DOMElement;
+use Soap\Wsdl\Exception\UnloadableWsdlException;
 use Soap\Wsdl\Loader\WsdlLoader;
 use Soap\Wsdl\Xml\Configurator\FlattenTypes;
 use Soap\Wsdl\Xml\Flattener;
@@ -94,6 +95,9 @@ final class FlatteningContext
      * Next it will apply the XML flattening on the loaded xml and return the flattened string.
      * We keep track of all nested flattening locations that are in progress.
      * This way we can prevent circular includes as well.
+     *
+     * @throws UnloadableWsdlException
+     * @throws RuntimeException
      */
     private function loadFlattenedXml(string $location): string
     {
