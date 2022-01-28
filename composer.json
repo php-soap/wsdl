@@ -19,6 +19,12 @@
             "email": "toonverwerft@gmail.com"
         }
     ],
+    "bin": [
+        "bin/wsdl"
+    ],
+    "config": {
+        "sort-packages": true
+    },
     "require": {
         "php": "^8.0",
         "ext-dom": "*",
@@ -26,9 +32,11 @@
         "league/uri": "^6.5",
         "league/uri-components": "^2.4",
         "php-soap/xml": "^1.2",
+        "symfony/console": "^5.4|^6.0",
         "veewee/xml": "~1.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^9.5",
+        "psalm/plugin-symfony": "^3.1"
     }
 }

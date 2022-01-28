@@ -14,14 +14,17 @@
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
 >
     <projectFiles>
-        <directory name="src" />
+        <directory name="src"/>
         <ignoreFiles>
-            <directory name="vendor" />
-            <directory name="tests" />
+            <directory name="vendor"/>
+            <directory name="tests"/>
         </ignoreFiles>
     </projectFiles>
     <ignoreExceptions>
-        <class name="InvalidArgumentException" />
-        <class name="Psl\Exception\InvariantViolationException" />
+        <class name="InvalidArgumentException"/>
+        <class name="Psl\Exception\InvariantViolationException"/>
     </ignoreExceptions>
+    <plugins>
+        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin"/>
+    </plugins>
 </psalm>
