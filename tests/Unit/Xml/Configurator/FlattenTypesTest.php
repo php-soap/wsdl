@@ -14,7 +14,7 @@ final class FlattenTypesTest extends TestCase
      *
      * @dataProvider provideTestCases
      */
-    public function test_it_can_flatten_tupes(string $wsdlUri, Document $expected): void
+    public function test_it_can_flatten_types(string $wsdlUri, Document $expected): void
     {
         $wsdl = Document::fromXmlFile($wsdlUri, new FlattenTypes(), comparable());
 

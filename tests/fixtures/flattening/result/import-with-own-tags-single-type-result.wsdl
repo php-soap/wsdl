@@ -6,6 +6,10 @@
         xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     >
+    <types>
+        <xsd:schema />
+        <xsd:schema />
+    </types>
     <message name="validateRequest">
         <part name="input" type="xsd:float" />
     </message>
@@ -39,8 +43,4 @@
         </port>
     </service>
 
-    <types>
-        <xsd:schema />
-        <xsd:schema />
-    </types>
 </definitions>

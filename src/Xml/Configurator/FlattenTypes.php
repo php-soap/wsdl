@@ -37,7 +37,7 @@ final class FlattenTypes implements Configurator
         }
 
         // Skip if only one exists
-        $first = array_pop($types);
+        $first = array_shift($types);
         if (!count($types)) {
             return $document;
         }
