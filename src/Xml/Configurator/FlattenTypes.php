@@ -15,6 +15,10 @@ use function VeeWee\Xml\Dom\Locator\Node\children;
 use function VeeWee\Xml\Dom\Manipulator\append;
 use function VeeWee\Xml\Dom\Manipulator\Node\remove;
 
+/**
+ * This class transforms multiple wsdl:types elements into 1 single element.
+ * This makes importing xsd's easier (and prevents some bugs in some soap related tools)
+ */
 final class FlattenTypes implements Configurator
 {
     /**

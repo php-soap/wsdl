@@ -66,7 +66,7 @@ The result of this loader is a completely flattened WSDL file which you can e.g.
 use Soap\Wsdl\Loader\FlatteningLoader;
 use Soap\Wsdl\Loader\StreamWrapperLoader;
 
-$loader = FlatteningLoader::createForLoader(new StreamWrapperLoader());
+$loader = new FlatteningLoader(new StreamWrapperLoader());
 
 $contents = $loader($wsdl);
 ```

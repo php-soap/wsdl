@@ -7,7 +7,6 @@ namespace Soap\Wsdl\Xml\Configurator;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-use Psl\Exception\InvariantViolationException;
 use Psl\Type\Exception\AssertException;
 use Soap\Wsdl\Exception\UnloadableWsdlException;
 use Soap\Wsdl\Loader\Context\FlatteningContext;
@@ -25,10 +24,8 @@ use function VeeWee\Xml\Dom\Manipulator\Node\append_external_node;
 use function VeeWee\Xml\Dom\Manipulator\Node\remove;
 
 /**
- * @TODO check https://github.com/pkielgithub/SchemaLightener/blob/master/src/SchemaLightener.java implementation
- * -> http://www.strategicdevelopment.io/tools/index.php
- * -> http://www.strategicdevelopment.io/tools/SchemaLightener.php
- * -> http://www.strategicdevelopment.io/tools/WSDLFlattener.php
+ * This class deals with xsd:import, xsd:include and xsd:redefine tags.
+ * It imports the types grouped by schema namespace to make sure that the size of the result is as small as possible!
  */
 final class FlattenXsdImports implements Configurator
 {
@@ -176,7 +173,6 @@ final class FlattenXsdImports implements Configurator
      * It groups all imports by targetNamespace.
      *
      * @throws RuntimeException
-     * @throws InvariantViolationException
      * @throws AssertException
      */
     private function registerSchemaInTypes(DOMElement $schema): void

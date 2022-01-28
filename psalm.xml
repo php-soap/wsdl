@@ -22,5 +22,6 @@
     </projectFiles>
     <ignoreExceptions>
         <class name="InvalidArgumentException" />
+        <class name="Psl\Exception\InvariantViolationException" />
     </ignoreExceptions>
 </psalm>
