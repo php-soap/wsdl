@@ -6,6 +6,7 @@ namespace Soap\Wsdl\Xml\Configurator;
 
 use DOMDocument;
 use DOMElement;
+use DOMNode;
 use Soap\Wsdl\Exception\UnloadableWsdlException;
 use Soap\Wsdl\Loader\Context\FlatteningContext;
 use Soap\Wsdl\Uri\IncludePathBuilder;
@@ -14,6 +15,8 @@ use Soap\Xml\Xpath\WsdlPreset;
 use VeeWee\Xml\Dom\Configurator\Configurator;
 use VeeWee\Xml\Dom\Document;
 use VeeWee\Xml\Exception\RuntimeException;
+use function Psl\Fun\identity;
+use function Psl\Result\wrap;
 use function VeeWee\Xml\Dom\Locator\Element\parent_element;
 use function VeeWee\Xml\Dom\Locator\Node\children;
 use function VeeWee\Xml\Dom\Manipulator\Element\copy_named_xmlns_attributes;
@@ -53,7 +56,6 @@ final class FlattenXsdImports implements Configurator
             return $document;
         }
 
-        $types = $this->context->types();
         foreach ($imports as $import) {
             $schema = match ($import->localName) {
                 'include', 'redefine' => $this->includeSchema($import),
@@ -61,7 +63,7 @@ final class FlattenXsdImports implements Configurator
             };
 
             if ($schema) {
-                append_external_node($types, $schema);
+                $this->registerSchemaInTypes($schema);
             }
         }
 
@@ -80,32 +82,33 @@ final class FlattenXsdImports implements Configurator
             throw FlattenException::noLocation($include->localName);
         }
 
-        // https://docs.microsoft.com/en-us/previous-versions/dotnet/netframework-4.0/ms256198(v=vs.100)
         /*
+         * Currently we do not validate the namespace of includes - we assume the provided imports are valid!
+         *
+         * @see https://docs.microsoft.com/en-us/previous-versions/dotnet/netframework-4.0/ms256198(v=vs.100)
          * The included schema document must meet one of the following conditions.
             -    It must have the same target namespace as the containing schema document.
             -    It must not have a target namespace specified (no targetNamespace attribute).
          */
 
-
         // Include tags can be removed, since the schema will be made available in the types
         // using the namespace it defines.
         $schema = $this->loadSchema(
             $location,
-            fn ($absolutePath): ?string => $this->context->include($absolutePath)
+            fn ($absolutePath): ?string => $this->context->import($absolutePath)
         );
 
-        if (!$schema) {
-            remove($include);
-            return null;
+        // Redefines overwrite tags from includes.
+        // The children of redefine elements are appended to the newly loaded schema.
+        if ($schema && $include->localName === 'redefine') {
+            children($include)->map(
+                static fn (DOMNode $node) => append_external_node($schema, $node)
+            );
         }
 
-        copy_named_xmlns_attributes(parent_element($include), $schema);
-        replace_by_external_nodes($include, children($schema));
+        remove($include);
 
-        // Todo -> append the redefine's children as well after import
-
-        return null;
+        return $schema;
     }
 
     /**
@@ -172,5 +175,34 @@ final class FlattenXsdImports implements Configurator
         $schema = $imported->xpath(new WsdlPreset($imported))->querySingle('/schema:schema');
 
         return $schema;
+    }
+
+    /**
+     * This function registers the newly provided schema in the WSDL types section.
+     * It groups all imports by targetNamespace.
+     */
+    private function registerSchemaInTypes(DOMElement $schema): void
+    {
+        $wsdl = $this->context->wsdl();
+        $xpath = $wsdl->xpath(new WsdlPreset($wsdl));
+        $types = $this->context->types();
+        $tns = $schema->getAttribute('targetNamespace');
+
+        $query = $tns ? './schema:schema[@targetNamespace=\''.$tns.'\']' : './schema:schema[not(@targetNamespace)]';
+        $existingSchema = $xpath->query($query, $types)->first();
+
+        // If no schema exists yet: Add the newly loaded schema as a completely new schema in the WSDL types.
+        if (!$existingSchema) {
+            append_external_node($types, $schema);
+            return;
+        }
+
+        // When an existing schema exists, all xmlns attributes need to be copied.
+        // This is to make sure that possible QNames (strings) get resolved in XSD.
+        // Finally - all children of the newly loaded schema can be appended to the existing schema.
+        copy_named_xmlns_attributes($existingSchema, $schema);
+        children($schema)->forEach(
+            static fn (DOMNode $node) => append_external_node($existingSchema, $node)
+        );
     }
 }

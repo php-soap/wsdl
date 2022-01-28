@@ -21,13 +21,6 @@ final class FlatteningContext
      */
     private $catalog = [];
 
-    /**
-     * Indicator for preventing circular xsd:includes and redefines
-     *
-     * @var array<string, true>
-     */
-    private $flattening = [];
-
     public static function forWsdl(
         string $location,
         Document $wsdl,
@@ -56,22 +49,7 @@ final class FlatteningContext
     }
 
     /**
-     * xsd:include and xsd:redefine should always be included in the schema that triggers the include.
-     * This function will return a flattened version of the include.
-     * Nested includes will be resolved.
-     */
-    public function include(string $location): ?string
-    {
-        // Prevent circular includes:
-        if ($this->flattening[$location] ?? false) {
-            return null;
-        }
-
-        return $this->loadFlattenedXml($location);
-    }
-
-    /**
-     * xsd:import and wsdl:import's only need to occur once.
+     * Imports and include only need to occur once.
      * This function determines if an import should be done.
      *
      * It either returns null if the import already was done or the flattened XML if it still requires an import.
@@ -125,10 +103,6 @@ final class FlatteningContext
 
         $document = Document::fromXmlString($this->catalog[$location]);
 
-        $this->flattening[$location] = true;
-        $result = (new Flattener())($location, $document, $this);
-        unset($this->flattening[$location]);
-
-        return $result;
+        return (new Flattener())($location, $document, $this);
     }
 }

@@ -11,11 +11,6 @@
                     <xsd:element minOccurs="1" maxOccurs="1" name="Attribute1" type="string"/>
                 </xsd:sequence>
             </xsd:complexType>
-            <xsd:complexType name="Store">
-                <xsd:sequence>
-                    <xsd:element minOccurs="1" maxOccurs="1" name="Attribute1" type="string"/>
-                </xsd:sequence>
-            </xsd:complexType>
         </xsd:schema>
     </types>
 </definitions>
