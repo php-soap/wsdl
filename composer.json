@@ -28,7 +28,7 @@
     "require": {
         "php": "^8.0",
         "ext-dom": "*",
-        "azjezz/psl": "^1.9",
+        "azjezz/psl": "^1.9|^2.0",
         "league/uri": "^6.5",
         "league/uri-components": "^2.4",
         "php-soap/xml": "^1.2",
