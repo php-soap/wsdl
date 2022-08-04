@@ -3,7 +3,6 @@
     errorLevel="1"
     resolveFromConfigFile="true"
     strictBinaryOperands="true"
-    phpVersion="8.0"
     allowStringToStandInForClass="true"
     rememberPropertyAssignmentsAfterCall="false"
     skipChecksOnUnresolvableIncludes="false"
