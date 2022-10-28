@@ -16,6 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use VeeWee\Xml\Dom\Document;
 use VeeWee\Xml\ErrorHandling\Issue\IssueCollection;
+use function Psl\Type\non_empty_string;
 
 final class ValidateCommand extends Command
 {
@@ -44,7 +45,9 @@ final class ValidateCommand extends Command
         $wsdl = $input->getArgument('wsdl');
 
         $style->info('Loading "'.$wsdl.'"...');
-        $document = Document::fromXmlString($loader($wsdl));
+        $document = Document::fromXmlString(
+            non_empty_string()->assert($loader($wsdl))
+        );
         $xpath = $document->xpath(new WsdlPreset($document));
 
         $result = $this->runValidationStage(
