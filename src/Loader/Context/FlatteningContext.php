@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Soap\Wsdl\Loader\Context;
 
 use DOMElement;
+use Psl\Type\Exception\AssertException;
 use Soap\Wsdl\Exception\UnloadableWsdlException;
 use Soap\Wsdl\Loader\WsdlLoader;
 use Soap\Wsdl\Xml\Configurator\FlattenTypes;
@@ -11,6 +12,7 @@ use Soap\Wsdl\Xml\Flattener;
 use Soap\Xml\Xpath\WsdlPreset;
 use VeeWee\Xml\Dom\Document;
 use VeeWee\Xml\Exception\RuntimeException;
+use function Psl\Type\non_empty_string;
 use function VeeWee\Xml\Dom\Mapper\xml_string;
 
 final class FlatteningContext
@@ -98,6 +100,7 @@ final class FlatteningContext
      *
      * @throws UnloadableWsdlException
      * @throws RuntimeException
+     * @throws AssertException
      */
     private function loadFlattenedXml(string $location): string
     {
@@ -105,7 +108,9 @@ final class FlatteningContext
             $this->catalog[$location] = ($this->loader)($location);
         }
 
-        $document = Document::fromXmlString($this->catalog[$location]);
+        $document = Document::fromXmlString(
+            non_empty_string()->assert($this->catalog[$location])
+        );
 
         return (new Flattener())($location, $document, $this);
     }
