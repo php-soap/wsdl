@@ -4,7 +4,8 @@ declare(strict_types=1);
 namespace Soap\Wsdl\Console\Command;
 
 use Exception;
-use Psl\Filesystem;
+use Psl\File;
+use Psl\File\WriteMode;
 use Soap\Wsdl\Console\Helper\ConfiguredLoader;
 use Soap\Wsdl\Loader\CallbackLoader;
 use Soap\Wsdl\Loader\FlatteningLoader;
@@ -16,6 +17,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function Psl\Type\non_empty_string;
 
 final class FlattenCommand extends Command
 {
@@ -45,8 +47,8 @@ final class FlattenCommand extends Command
             $input->getOption('loader'),
             fn (WsdlLoader $loader) => $this->configureLoader($loader, $style)
         );
-        $wsdl = $input->getArgument('wsdl');
-        $output = $input->getArgument('output');
+        $wsdl = non_empty_string()->coerce($input->getArgument('wsdl'));
+        $output = non_empty_string()->coerce($input->getArgument('output'));
 
         $style->info('Flattening WSDL "'.$wsdl.'"');
         $style->warning('This can take a while...');
@@ -54,7 +56,7 @@ final class FlattenCommand extends Command
 
         $style->info('Downloaded the WSDL. Writing it to "'.$output.'".');
 
-        Filesystem\write_file($output, $contents);
+        File\write($output, $contents, WriteMode::TRUNCATE);
 
         $style->success('Succesfully flattened your WSDL!');
 

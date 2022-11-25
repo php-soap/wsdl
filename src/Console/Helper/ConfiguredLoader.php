@@ -8,7 +8,7 @@ use Psl\Type\Exception\AssertException;
 use Soap\Wsdl\Loader\StreamWrapperLoader;
 use Soap\Wsdl\Loader\WsdlLoader;
 use function Psl\invariant;
-use function Psl\Type\object;
+use function Psl\Type\instance_of;
 
 final class ConfiguredLoader
 {
@@ -31,7 +31,7 @@ final class ConfiguredLoader
             /** @var WsdlLoader $included */
             $included = require $file;
 
-            $loader = object(WsdlLoader::class)->assert($included);
+            $loader = instance_of(WsdlLoader::class)->assert($included);
         }
 
         return $configurator ? $configurator($loader) : $loader;

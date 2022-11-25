@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Soap\Wsdl\Xml;
 
-use Closure;
 use DOMDocument;
 use Soap\Wsdl\Loader\Context\FlatteningContext;
 use Soap\Wsdl\Xml\Configurator\FlattenTypes;
@@ -32,11 +31,11 @@ final class Flattener
                 when(
                     static fn (DOMDocument $document): bool => $document->documentElement->localName === 'definitions',
                     pipe(
-                        Closure::fromCallable(new FlattenWsdlImports($location, $context)),
-                        Closure::fromCallable(new FlattenTypes()),
-                        Closure::fromCallable(new FlattenXsdImports($location, $context)),
+                        (new FlattenWsdlImports($location, $context))(...),
+                        (new FlattenTypes())(...),
+                        (new FlattenXsdImports($location, $context))(...),
                     ),
-                    Closure::fromCallable(new FlattenXsdImports($location, $context))
+                    (new FlattenXsdImports($location, $context))(...)
                 )
             )
         )->toXmlString();
