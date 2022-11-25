@@ -16,8 +16,8 @@ use Soap\Xml\Xpath\WsdlPreset;
 use VeeWee\Xml\Dom\Configurator\Configurator;
 use VeeWee\Xml\Dom\Document;
 use VeeWee\Xml\Exception\RuntimeException;
+use function Psl\Type\instance_of;
 use function Psl\Type\nullable;
-use function Psl\Type\object;
 use function VeeWee\Xml\Dom\Locator\Node\children;
 use function VeeWee\Xml\Dom\Manipulator\Element\copy_named_xmlns_attributes;
 use function VeeWee\Xml\Dom\Manipulator\Node\append_external_node;
@@ -183,7 +183,7 @@ final class FlattenXsdImports implements Configurator
         $tns = $schema->getAttribute('targetNamespace');
 
         $query = $tns ? './schema:schema[@targetNamespace=\''.$tns.'\']' : './schema:schema[not(@targetNamespace)]';
-        $existingSchema = nullable(object(DOMElement::class))
+        $existingSchema = nullable(instance_of(DOMElement::class))
             ->assert($xpath->query($query, $types)->first());
 
         // If no schema exists yet: Add the newly loaded schema as a completely new schema in the WSDL types.

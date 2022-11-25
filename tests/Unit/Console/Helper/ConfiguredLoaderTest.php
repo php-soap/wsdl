@@ -4,11 +4,12 @@ declare(strict_types=1);
 namespace SoapTest\Wsdl\Unit\Console\Helper;
 
 use PHPUnit\Framework\TestCase;
+use Psl\File\WriteMode;
 use Soap\Wsdl\Console\Helper\ConfiguredLoader;
 use Soap\Wsdl\Loader\CallbackLoader;
 use Soap\Wsdl\Loader\StreamWrapperLoader;
+use function Psl\File\write;
 use function Psl\Filesystem\delete_file;
-use function Psl\Filesystem\write_file;
 
 final class ConfiguredLoaderTest extends TestCase
 {
@@ -60,12 +61,13 @@ final class ConfiguredLoaderTest extends TestCase
     private function withLoaderFile(callable $execute): void
     {
         $file = tempnam(sys_get_temp_dir(), 'wsdlloader');
-        write_file(
+        write(
             $file,
             <<<EOPHP
         <?php
         return new \Soap\Wsdl\Loader\CallbackLoader(static fn () => 'loaded');    
-        EOPHP
+        EOPHP,
+            WriteMode::TRUNCATE
         );
 
         try {
