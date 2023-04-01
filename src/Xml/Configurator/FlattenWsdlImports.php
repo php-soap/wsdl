@@ -42,7 +42,7 @@ final class FlattenWsdlImports implements Configurator
         $xml = Document::fromUnsafeDocument($document);
         $xpath = $xml->xpath(new WsdlPreset($xml));
 
-        $imports = $xpath->query('wsdl:import');
+        $imports = $xpath->query('wsdl:import')->expectAllOfType(DOMElement::class);
         $imports->forEach(fn (DOMElement $import) => $this->importWsdlImportElement($import));
 
         return $document;

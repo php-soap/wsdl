@@ -30,12 +30,15 @@ final class SchemaSyntaxValidator implements Validator
         $xml = Document::fromUnsafeDocument($document);
         $xpath = $xml->xpath(new WsdlPreset($xml));
 
-        return $xpath->query('//schema:schema')->reduce(
-            fn (IssueCollection $issues, DOMElement $schema) => new IssueCollection(
-                ...$issues,
-                ...Document::fromXmlNode($schema)->validate(xsd_validator($this->xsd))
-            ),
-            new IssueCollection()
-        );
+        return $xpath
+            ->query('//schema:schema')
+            ->expectAllOfType(DOMElement::class)
+            ->reduce(
+                fn (IssueCollection $issues, DOMElement $schema) => new IssueCollection(
+                    ...$issues,
+                    ...Document::fromXmlNode($schema)->validate(xsd_validator($this->xsd))
+                ),
+                new IssueCollection()
+            );
     }
 }

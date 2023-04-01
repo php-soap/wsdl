@@ -131,6 +131,12 @@ The final result is stored in a single WSDL file.
 This command performs some basic validations on the provided WSDL file.
 If your WSDL contains any imports, you'll have to flatten the WSDL into a single file first.
 
+### Extensions
+
+By installing additional packages from `php-soap`, additional commands will be added to the WSDL tools:
+
+* [wsdl-reader](https://github.com/php-soap/wsdl-reader): Will install inspect commands that will give you a human-readable version of all information inside your WSDL. 
+
 ### Custom WSDL Loader
 
 By default, all CLI tools use the StreamWrapperLoader.
