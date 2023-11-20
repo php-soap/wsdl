@@ -11,10 +11,7 @@ final class IncludePathBuilder
 {
     public static function build(string $relativePath, string $fromFile): string
     {
-        $baseUri = BaseUri::from($fromFile);
-        $uri = $baseUri->resolve($relativePath);
-
-        return Modifier::from($uri)
+        return Modifier::from(BaseUri::from($fromFile)->resolve($relativePath))
             ->removeDotSegments()
             ->removeEmptySegments()
             ->getUri()
