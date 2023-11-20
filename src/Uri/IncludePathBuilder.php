@@ -15,7 +15,7 @@ final class IncludePathBuilder
             ->removeDotSegments()
             ->removeEmptySegments()
             ->getUri()
-            ->toString()
+            ->__toString()
         ;
     }
 }
