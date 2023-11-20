@@ -4,21 +4,18 @@ declare(strict_types=1);
 
 namespace Soap\Wsdl\Uri;
 
-use League\Uri\Uri;
-use League\Uri\UriModifier;
-use League\Uri\UriResolver;
+use League\Uri\BaseUri;
+use League\Uri\Modifier;
 
 final class IncludePathBuilder
 {
     public static function build(string $relativePath, string $fromFile): string
     {
-        return UriModifier::removeEmptySegments(
-            UriModifier::removeDotSegments(
-                UriResolver::resolve(
-                    Uri::createFromString($relativePath),
-                    Uri::createFromString($fromFile)
-                )
-            )
-        )->__toString();
+        return Modifier::from(BaseUri::from($fromFile)->resolve($relativePath))
+            ->removeDotSegments()
+            ->removeEmptySegments()
+            ->getUri()
+            ->__toString()
+        ;
     }
 }
