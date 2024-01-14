@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions name="agenzia" targetNamespace="http://www.immobinet.it/wsdl/WebserviceModAgenziaBundle"
+                  xmlns:imw="http://www.immobinet.it/wsdl/WebserviceModAgenziaBundle"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                  xmlns:core="http://www.immobinet.it/schema/WebserviceCoreBundle"
+                  xmlns:imm2="http://www.immobinet.it/schema/WebserviceImmobileBundle">
+    <wsdl:types>
+        <xsd:schema elementFormDefault="qualified"
+                    targetNamespace="http://www.immobinet.it/wsdl/WebserviceModAgenziaBundle"
+                    xmlns:imsw="http://www.immobinet.it/schema/WebserviceModAgenziaBundle"
+        >
+            <xsd:import schemaLocation="xsd/root-xmlns-import-issue-core.xsd"
+                        namespace="http://www.immobinet.it/schema/WebserviceCoreBundle"></xsd:import>
+
+        </xsd:schema>
+    </wsdl:types>
+</wsdl:definitions>
