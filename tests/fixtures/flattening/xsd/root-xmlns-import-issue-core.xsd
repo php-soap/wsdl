@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.immobinet.it/schema/WebserviceCoreBundle"
+        xmlns:imm="http://www.immobinet.it/schema/WebserviceCoreBundle" elementFormDefault="qualified">
+    <complexType name="Auth">
+        <sequence>
+            <element name="username" type="string" maxOccurs="1" minOccurs="1"></element>
+            <element name="password" type="string" maxOccurs="1" minOccurs="1"></element>
+        </sequence>
+    </complexType>
+</schema>

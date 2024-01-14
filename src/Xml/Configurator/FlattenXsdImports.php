@@ -18,6 +18,7 @@ use VeeWee\Xml\Dom\Document;
 use VeeWee\Xml\Exception\RuntimeException;
 use function Psl\Type\instance_of;
 use function Psl\Type\nullable;
+use function VeeWee\Xml\Dom\Assert\assert_element;
 use function VeeWee\Xml\Dom\Locator\Node\children;
 use function VeeWee\Xml\Dom\Manipulator\Element\copy_named_xmlns_attributes;
 use function VeeWee\Xml\Dom\Manipulator\Node\append_external_node;
@@ -188,7 +189,8 @@ final class FlattenXsdImports implements Configurator
 
         // If no schema exists yet: Add the newly loaded schema as a completely new schema in the WSDL types.
         if (!$existingSchema) {
-            append_external_node($types, $schema);
+            $imported = assert_element(append_external_node($types, $schema));
+            $this->fixRemovedDefaultXmlnsDeclarationsDuringImport($imported, $schema);
             return;
         }
 
@@ -196,8 +198,31 @@ final class FlattenXsdImports implements Configurator
         // This is to make sure that possible QNames (strings) get resolved in XSD.
         // Finally - all children of the newly loaded schema can be appended to the existing schema.
         copy_named_xmlns_attributes($existingSchema, $schema);
+        $this->fixRemovedDefaultXmlnsDeclarationsDuringImport($existingSchema, $schema);
         children($schema)->forEach(
             static fn (DOMNode $node) => append_external_node($existingSchema, $node)
         );
+    }
+
+    /**
+     * @see https://gist.github.com/veewee/32c3aa94adcf878700a9d5baa4b2a2de
+     *
+     * PHP does an optimization of namespaces during `importNode()`.
+     * In some cases, this causes the root xmlns to be removed from the imported node which could lead to xsd qname errors.
+     *
+     * This function tries to re-add the root xmlns if it's available on the source but not on the target.
+     *
+     * It will most likely be solved in PHP 8.4's new spec compliant DOM\XMLDocument implementation.
+     * @see https://github.com/php/php-src/pull/13031
+     *
+     * For now, this will do the trick.
+     */
+    private function fixRemovedDefaultXmlnsDeclarationsDuringImport(DOMElement $target, DOMElement $source): void
+    {
+        if (!$source->getAttribute('xmlns') || $target->hasAttribute('xmlns')) {
+            return;
+        }
+
+        $target->setAttribute('xmlns', $source->getAttribute('xmlns'));
     }
 }
