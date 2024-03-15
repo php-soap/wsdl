@@ -60,7 +60,7 @@ final class FlattenWsdlImports implements Configurator
         );
 
         $result = $this->context->import($location);
-        if (!$result) {
+        if ($result === null || $result === '') {
             remove($import);
             return;
         }

@@ -119,12 +119,6 @@ final class FlattenXsdImports implements Configurator
             return null;
         }
 
-        // Normally an import has an owner document, since it is coming from xpath on an existing document
-        // However, static analysis does not know about this.
-        if (!$import->ownerDocument) {
-            return null;
-        }
-
         // Find the schema that wants to import the new schema:
         $doc = Document::fromUnsafeDocument($import->ownerDocument);
         $xpath = $doc->xpath(new WsdlPreset($doc));
@@ -158,7 +152,7 @@ final class FlattenXsdImports implements Configurator
         $path = IncludePathBuilder::build($location, $this->currentLocation);
         $result = $this->context->import($path);
 
-        if (!$result) {
+        if ($result === null || $result === '') {
             return null;
         }
 
