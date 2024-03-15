@@ -33,7 +33,7 @@
         "league/uri-components": "^7.0",
         "php-soap/xml": "^1.4",
         "symfony/console": "^5.4 || ^6.0 || ^7.0",
-        "veewee/xml": "~2.2"
+        "veewee/xml": "~2.2 || ~3.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
