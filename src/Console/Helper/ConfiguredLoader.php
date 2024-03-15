@@ -23,7 +23,8 @@ final class ConfiguredLoader
     {
         $loader = new StreamWrapperLoader();
 
-        if ($file) {
+        if ($file !== null) {
+            invariant($file !== '', 'File must not be empty.');
             invariant(Filesystem\exists($file), 'File "%s" does not exist.', $file);
             invariant(Filesystem\is_file($file), 'File "%s" is not a file.', $file);
             invariant(Filesystem\is_readable($file), 'File "%s" is not readable.', $file);
@@ -34,6 +35,6 @@ final class ConfiguredLoader
             $loader = instance_of(WsdlLoader::class)->assert($included);
         }
 
-        return $configurator ? $configurator($loader) : $loader;
+        return $configurator !== null ? $configurator($loader) : $loader;
     }
 }

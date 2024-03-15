@@ -15,9 +15,12 @@ final class WsdlSyntaxValidator implements Validator
 {
     private string $xsd;
 
+    /**
+     * @param non-empty-string|null $xsd
+     */
     public function __construct(?string $xsd = null)
     {
-        $this->xsd = $xsd ?: dirname(__DIR__, 3).'/xsd/wsdl.xsd';
+        $this->xsd = $xsd ?? dirname(__DIR__, 3).'/xsd/wsdl.xsd';
     }
 
     /**
