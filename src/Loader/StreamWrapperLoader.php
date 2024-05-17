@@ -22,11 +22,11 @@ final class StreamWrapperLoader implements WsdlLoader
     {
         $this->context = $context;
     }
-    
+
     public function __invoke(string $location): string
     {
         try {
-            $content = file_get_contents(
+            $content = @file_get_contents(
                 $location,
                 context: is_resource($this->context) ? $this->context : null
             );
