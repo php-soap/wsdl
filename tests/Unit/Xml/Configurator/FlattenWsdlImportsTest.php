@@ -46,5 +46,13 @@ final class FlattenWsdlImportsTest extends TestCase
             'wsdl' => FIXTURE_DIR.'/flattening/multi-import.wsdl',
             'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/multi-import-result.wsdl', comparable()),
         ];
+        yield 'xsd-imports' => [
+            'wsdl' => FIXTURE_DIR.'/flattening/import-xsd.wsdl',
+            'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/import-xsd-result.wsdl', comparable()),
+        ];
+        yield 'multi-xsd-imports' => [
+            'wsdl' => FIXTURE_DIR.'/flattening/import-multi-xsd.wsdl',
+            'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/import-multi-xsd-result.wsdl', comparable()),
+        ];
     }
 }
