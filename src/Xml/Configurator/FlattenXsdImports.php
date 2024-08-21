@@ -24,7 +24,6 @@ use function VeeWee\Xml\Dom\Locator\Node\children;
 use function VeeWee\Xml\Dom\Manipulator\Element\copy_named_xmlns_attributes;
 use function VeeWee\Xml\Dom\Manipulator\Node\append_external_node;
 use function VeeWee\Xml\Dom\Manipulator\Node\remove;
-use function VeeWee\Xml\Dom\Xpath\Configurator\functions;
 
 /**
  * This class deals with xsd:import, xsd:include and xsd:redefine tags.
@@ -240,7 +239,7 @@ final class FlattenXsdImports implements Configurator
      */
     private function rearrangeImportsAsFirstElements(Document $xml): void
     {
-        $xpath = $xml->xpath(new WsdlPreset($xml), functions(['array_reverse']));
+        $xpath = $xml->xpath(new WsdlPreset($xml));
         $imports = $xpath
             ->query('//schema:import')
             ->expectAllOfType(DOMElement::class);
