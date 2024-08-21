@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<definitions name="InteropTest"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    targetNamespace="http://soapinterop.org/">
+    <types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://soapinterop.org/xsd">
+            <import namespace="http://soapinterop.org/rearranged-import" schemaLocation="xsd/rearranged-import.xsd" />
+            <xsd:include schemaLocation="xsd/rearranged-include1.xsd" />
+            <xsd:include schemaLocation="xsd/rearranged-include2.xsd" />
+
+            <element name="element1" type="xsd:string" />
+        </schema>
+    </types>
+</definitions>

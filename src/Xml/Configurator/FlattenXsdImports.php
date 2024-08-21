@@ -18,11 +18,13 @@ use VeeWee\Xml\Dom\Document;
 use VeeWee\Xml\Exception\RuntimeException;
 use function Psl\Type\instance_of;
 use function Psl\Type\nullable;
+use function Psl\Vec\reverse;
 use function VeeWee\Xml\Dom\Assert\assert_element;
 use function VeeWee\Xml\Dom\Locator\Node\children;
 use function VeeWee\Xml\Dom\Manipulator\Element\copy_named_xmlns_attributes;
 use function VeeWee\Xml\Dom\Manipulator\Node\append_external_node;
 use function VeeWee\Xml\Dom\Manipulator\Node\remove;
+use function VeeWee\Xml\Dom\Xpath\Configurator\functions;
 
 /**
  * This class deals with xsd:import, xsd:include and xsd:redefine tags.
@@ -64,6 +66,8 @@ final class FlattenXsdImports implements Configurator
                 $this->registerSchemaInTypes($schema);
             }
         }
+
+        $this->rearrangeImportsAsFirstElements($xml);
 
         return $document;
     }
@@ -218,5 +222,32 @@ final class FlattenXsdImports implements Configurator
         }
 
         $target->setAttribute('xmlns', $source->getAttribute('xmlns'));
+    }
+
+    /**
+     * Makes sure to rearrange the import statements on top of the flattened XSD schema.
+     * This makes the flattened XSD spec compliant:
+     *
+     * @see https://www.w3.org/TR/xmlschema11-1/#declare-schema
+     *
+     * <schema>
+     * Content: ((include | import | redefine | override | annotation)*,
+     *   (defaultOpenContent, annotation*)?,
+     *   ((simpleType | complexType | group | attributeGroup | element | attribute | notation), annotation*)*)
+     * </schema>
+     *
+     * @throws RuntimeException
+     */
+    private function rearrangeImportsAsFirstElements(Document $xml): void
+    {
+        $xpath = $xml->xpath(new WsdlPreset($xml), functions(['array_reverse']));
+        $imports = $xpath
+            ->query('//schema:import')
+            ->expectAllOfType(DOMElement::class);
+
+        foreach (reverse($imports) as $import) {
+            $parentSchema = assert_element($import->parentNode);
+            $parentSchema->prepend($import);
+        }
     }
 }

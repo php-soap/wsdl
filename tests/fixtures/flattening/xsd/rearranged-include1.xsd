@@ -1,0 +1,6 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://soapinterop.org/xsd">
+
+    <import namespace="http://soapinterop.org/rearranged-import1" schemaLocation="rearranged-import1.xsd" />
+
+    <element name="includedElement1" type="xsd:string" />
+</schema>
