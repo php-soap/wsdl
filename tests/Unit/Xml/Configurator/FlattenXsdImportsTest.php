@@ -71,5 +71,10 @@ final class FlattenXsdImportsTest extends TestCase
             'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/root-xmlns-import-issue-result.wsdl'),
             canonicalize(),
         ];
+        yield 'rearranged-imports' => [
+            'wsdl' => FIXTURE_DIR.'/flattening/rearranged-imports.wsdl',
+            'expected' => Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/rearranged-imports.wsdl'),
+            comparable(),
+        ];
     }
 }
