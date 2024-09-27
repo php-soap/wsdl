@@ -1,0 +1,9 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://soapinterop.org/conflicting-import"
+    xmlns:ns1="urn:ns2"
+    xmlns:ns2="urn:ns1"
+    xmlns:ns3="urn:ns4"
+>
+    <element name="element1" type="ns1:string" />
+    <element name="element2" type="ns2:string" />
+    <element name="element3" type="ns3:string" />
+</schema>

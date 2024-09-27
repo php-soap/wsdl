@@ -27,4 +27,7 @@
     <plugins>
         <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin"/>
     </plugins>
+    <stubs>
+        <file name="stubs/dom.phpstub" />
+    </stubs>
 </psalm>
