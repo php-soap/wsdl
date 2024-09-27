@@ -16,6 +16,7 @@ use VeeWee\Xml\Dom\Document;
 use VeeWee\Xml\Exception\RuntimeException;
 use function VeeWee\Xml\Dom\Locator\document_element;
 use function VeeWee\Xml\Dom\Locator\Node\children;
+use function VeeWee\Xml\Dom\Manipulator\Element\copy_named_xmlns_attributes;
 use function VeeWee\Xml\Dom\Manipulator\Node\append_external_node;
 use function VeeWee\Xml\Dom\Manipulator\Node\remove;
 use function VeeWee\Xml\Dom\Manipulator\Node\replace_by_external_nodes;
@@ -82,6 +83,7 @@ final class FlattenWsdlImports implements Configurator
     private function importWsdlPart(DOMElement $importElement, Document $importedDocument): void
     {
         $definitions = $importedDocument->map(document_element());
+        copy_named_xmlns_attributes($importElement->ownerDocument->documentElement, $definitions);
 
         replace_by_external_nodes(
             $importElement,

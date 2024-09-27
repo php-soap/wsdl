@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<definitions name="InteropTest"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    targetNamespace="http://soapinterop.org/">
+    <types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://soapinterop.org/xsd">
+            <import namespace="http://soapinterop.org/conflicting-import" schemaLocation="xsd/conflicting-import.xsd" />
+        </schema>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://soapinterop.org/conflicting-import"
+            xmlns:ns1="urn:ns1"
+            xmlns:ns2="urn:ns2"
+            xmlns:ns3="urn:ns3"
+        >
+        </schema>
+    </types>
+</definitions>
