@@ -18,7 +18,7 @@ final class IncludePathBuilderTest extends TestCase
         static::assertSame($expected, IncludePathBuilder::build($relativePath, $fromFile));
     }
 
-    public function provideBuildPaths()
+    public static function provideBuildPaths()
     {
         yield 'same-dir-file' => [
             'relativePath' => 'otherfile.xml',

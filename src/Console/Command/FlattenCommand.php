@@ -56,7 +56,7 @@ final class FlattenCommand extends Command
 
         $style->info('Downloaded the WSDL. Writing it to "'.$output.'".');
 
-        File\write($output, $contents, WriteMode::TRUNCATE);
+        File\write($output, $contents, WriteMode::Truncate);
 
         $style->success('Succesfully flattened your WSDL!');
 

@@ -67,7 +67,7 @@ final class ConfiguredLoaderTest extends TestCase
         <?php
         return new \Soap\Wsdl\Loader\CallbackLoader(static fn () => 'loaded');    
         EOPHP,
-            WriteMode::TRUNCATE
+            WriteMode::Truncate
         );
 
         try {

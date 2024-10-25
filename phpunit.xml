@@ -1,7 +1,9 @@
 <phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+    displayDetailsOnPhpunitDeprecations="true"
     bootstrap="./tests/bootstrap.php"
     colors="true"
-    convertDeprecationsToExceptions="false"
 >
     <testsuites>
         <testsuite name="Unit">

@@ -16,19 +16,19 @@ final class FlattenWsdlImportsTest extends TestCase
      *
      * @dataProvider provideTestCases
      */
-    public function test_it_can_flatten_wsdl_imports(string $wsdlUri, Document $expected): void
+    public function test_it_can_flatten_wsdl_imports(string $wsdl, Document $expected): void
     {
-        $wsdl = Document::fromXmlFile($wsdlUri);
+        $wsdlDoc = Document::fromXmlFile($wsdl);
         $configurator = new FlattenWsdlImports(
-            $wsdlUri,
-            FlatteningContext::forWsdl($wsdlUri, $wsdl, new StreamWrapperLoader())
+            $wsdl,
+            FlatteningContext::forWsdl($wsdl, $wsdlDoc, new StreamWrapperLoader())
         );
-        $flattened = Document::fromUnsafeDocument($wsdl->toUnsafeDocument(), $configurator, comparable());
+        $flattened = Document::fromUnsafeDocument($wsdlDoc->toUnsafeDocument(), $configurator, comparable());
 
         static::assertSame($expected->toXmlString(), $flattened->toXmlString());
     }
 
-    public function provideTestCases()
+    public static function provideTestCases()
     {
         yield 'only-import' => [
             'wsdl' => FIXTURE_DIR.'/flattening/import.wsdl',
