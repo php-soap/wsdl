@@ -14,14 +14,14 @@ final class FlattenTypesTest extends TestCase
      *
      * @dataProvider provideTestCases
      */
-    public function test_it_can_flatten_types(string $wsdlUri, Document $expected): void
+    public function test_it_can_flatten_types(string $wsdl, Document $expected): void
     {
-        $wsdl = Document::fromXmlFile($wsdlUri, new FlattenTypes(), comparable());
+        $wsdlDoc = Document::fromXmlFile($wsdl, new FlattenTypes(), comparable());
 
-        static::assertSame($expected->toXmlString(), $wsdl->toXmlString());
+        static::assertSame($expected->toXmlString(), $wsdlDoc->toXmlString());
     }
 
-    public function provideTestCases()
+    public static function provideTestCases()
     {
         yield 'single-type' => [
             'wsdl' => FIXTURE_DIR . '/flattening/functional/empty-schema.wsdl',

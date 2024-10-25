@@ -17,19 +17,19 @@ final class FlattenXsdImportsTest extends TestCase
      *
      * @dataProvider provideTestCases
      */
-    public function test_it_can_flatten_xsd_imports(string $wsdlUri, Document $expected, callable $xmlConfigurator): void
+    public function test_it_can_flatten_xsd_imports(string $wsdl, Document $expected, callable $xmlConfigurator): void
     {
-        $wsdl = Document::fromXmlFile($wsdlUri);
+        $wsdlDoc = Document::fromXmlFile($wsdl);
         $configurator = new FlattenXsdImports(
-            $wsdlUri,
-            FlatteningContext::forWsdl($wsdlUri, $wsdl, new StreamWrapperLoader())
+            $wsdl,
+            FlatteningContext::forWsdl($wsdl, $wsdlDoc, new StreamWrapperLoader())
         );
-        $flattened = Document::fromUnsafeDocument($wsdl->toUnsafeDocument(), $configurator, $xmlConfigurator);
+        $flattened = Document::fromUnsafeDocument($wsdlDoc->toUnsafeDocument(), $configurator, $xmlConfigurator);
 
         static::assertSame($expected->reconfigure($xmlConfigurator)->toXmlString(), $flattened->toXmlString());
     }
 
-    public function provideTestCases()
+    public static function provideTestCases()
     {
         yield 'single-xsd' => [
             'wsdl' => FIXTURE_DIR.'/flattening/single-xsd.wsdl',

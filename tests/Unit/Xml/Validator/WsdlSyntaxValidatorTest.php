@@ -24,7 +24,7 @@ final class WsdlSyntaxValidatorTest extends TestCase
         }
     }
 
-    public function provideTestCases()
+    public static function provideTestCases()
     {
         yield 'no-errors' => [
             'wsdl' => FIXTURE_DIR.'/wsdl.wsdl',

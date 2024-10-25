@@ -22,15 +22,15 @@ final class FlatteningLoaderTest extends TestCase
      *
      * @dataProvider provideTestCases
      */
-    public function test_it_can_load_flattened_imports(string $wsdlUri, Document $expected): void
+    public function test_it_can_load_flattened_imports(string $wsdl, Document $expected): void
     {
-        $result = ($this->loader)($wsdlUri);
+        $result = ($this->loader)($wsdl);
         $flattened = Document::fromXmlString($result, comparable());
 
         static::assertSame($expected->toXmlString(), $flattened->toXmlString());
     }
 
-    public function provideTestCases()
+    public static function provideTestCases()
     {
         //
         // Basic test cases

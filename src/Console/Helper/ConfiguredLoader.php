@@ -19,7 +19,7 @@ final class ConfiguredLoader
      *
      * @psalm-suppress UnresolvableInclude - Including dynamic includes is acutally the goal :)
      */
-    public static function createFromConfig(?string $file, callable $configurator = null): WsdlLoader
+    public static function createFromConfig(?string $file, ?callable $configurator = null): WsdlLoader
     {
         $loader = new StreamWrapperLoader();
 
