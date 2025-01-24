@@ -85,22 +85,39 @@ final class FlattenXsdImports implements Configurator
         }
 
         /*
-         * Currently we do not validate the namespace of includes - we assume the provided imports are valid!
+         * Target namespace rules:
          *
          * @see https://docs.microsoft.com/en-us/previous-versions/dotnet/netframework-4.0/ms256198(v=vs.100)
          * The included schema document must meet one of the following conditions.
-            -    It must have the same target namespace as the containing schema document.
-            -    It must not have a target namespace specified (no targetNamespace attribute).
+            - It must have the same target namespace as the containing schema document.
+            - It must not have a target namespace specified (no targetNamespace attribute).
+              In that case, the including schema document provides the target namespace for the new one.
          */
 
-        $schema = $this->loadSchema($location);
+        // Detect namespaces from both the current schema and the import
+        $parentSchema = $this->detectParentSchemaNode($include);
+        $parentTns = $parentSchema->getAttribute('targetNamespace');
 
-        // Redefines overwrite tags from includes.
-        // The children of redefine elements are appended to the newly loaded schema.
-        if ($schema && $include->localName === 'redefine') {
-            children($include)->map(
-                static fn (DOMNode $node) => append_external_node($schema, $node)
-            );
+        $schema = $this->loadSchema($location);
+        if ($schema) {
+            // If the included schema has no targetNamespace, it will inherit the parent schema's namespace.
+            if (!$schema->hasAttribute('targetNamespace')) {
+                $schema->setAttribute('targetNamespace', $parentTns);
+            }
+
+            // Validate if the namespaces of the included document match the parent schema.
+            $schemaTns = $schema->getAttribute('targetNamespace');
+            if ($schemaTns !== $parentTns) {
+                throw FlattenException::invalidIncludeTargetNamespace($parentTns, $schemaTns);
+            }
+
+            // Redefines overwrite tags from includes.
+            // The children of redefine elements are appended to the newly loaded schema.
+            if ($include->localName === 'redefine') {
+                children($include)->map(
+                    static fn (DOMNode $node) => append_external_node($schema, $node)
+                );
+            }
         }
 
         // Include tags can be removed, since the schema will be made available in the types
@@ -123,19 +140,14 @@ final class FlattenXsdImports implements Configurator
             return null;
         }
 
-        // Find the schema that wants to import the new schema:
-        $doc = Document::fromUnsafeDocument($import->ownerDocument);
-        $xpath = $doc->xpath(new WsdlPreset($doc));
-        /** @var DOMElement $schema */
-        $schema = $xpath->querySingle('ancestor::schema:schema', $import);
-
         // Detect namespaces from both the current schema and the import
         $namespace = $import->getAttribute('namespace');
-        $tns = $schema->getAttribute('targetNamespace');
+        $parentSchema = $this->detectParentSchemaNode($import);
+        $parentTns = $parentSchema->getAttribute('targetNamespace');
 
         // Imports can only deal with different namespaces.
         // You'll need to use "include" if you want to inject something in the same namespace.
-        if ($tns && $namespace && $tns === $namespace) {
+        if ($parentTns && $namespace && $parentTns === $namespace) {
             throw FlattenException::unableToImportXsd($location);
         }
 
@@ -145,6 +157,20 @@ final class FlattenXsdImports implements Configurator
         $import->removeAttribute('schemaLocation');
 
         return $schema;
+    }
+
+    /**
+     * This function will return the parent declaring <schema /> tag for elements like import | include, ...
+     *
+     * @throws RuntimeException
+     */
+    private function detectParentSchemaNode(DOMElement $element): DOMElement
+    {
+        $parent = Document::fromUnsafeDocument($element->ownerDocument);
+        $xpath = $parent->xpath(new WsdlPreset($parent));
+
+        /** @var DOMElement */
+        return $xpath->querySingle('ancestor::schema:schema', $element);
     }
 
     /**

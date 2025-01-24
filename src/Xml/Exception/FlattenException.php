@@ -13,6 +13,11 @@ final class FlattenException extends RuntimeException
         return new self("Parsing Schema: {$elementName} has no 'schemaLocation' attribute");
     }
 
+    public static function invalidIncludeTargetNamespace(string $parentTns, string $currentTns): self
+    {
+        return new self("Parsing Schema: include has an invalid targetNamespace of '$currentTns'. Expected '$parentTns'");
+    }
+
     public static function unableToImportXsd(string $location): self
     {
         $target = $location ? ' from '.$location : '';
