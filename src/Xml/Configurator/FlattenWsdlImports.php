@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Soap\Wsdl\Xml\Configurator;
 
-use DOMDocument;
-use DOMElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Soap\Wsdl\Exception\UnloadableWsdlException;
 use Soap\Wsdl\Loader\Context\FlatteningContext;
 use Soap\Wsdl\Uri\IncludePathBuilder;
@@ -14,6 +14,7 @@ use Soap\Xml\Xpath\WsdlPreset;
 use VeeWee\Xml\Dom\Configurator\Configurator;
 use VeeWee\Xml\Dom\Document;
 use VeeWee\Xml\Exception\RuntimeException;
+use function VeeWee\Xml\Dom\Assert\assert_document;
 use function VeeWee\Xml\Dom\Locator\document_element;
 use function VeeWee\Xml\Dom\Locator\Node\children;
 use function VeeWee\Xml\Dom\Manipulator\Element\copy_named_xmlns_attributes;
@@ -40,13 +41,13 @@ final class FlattenWsdlImports implements Configurator
      * @throws RuntimeException
      * @throws UnloadableWsdlException
      */
-    public function __invoke(DOMDocument $document): DOMDocument
+    public function __invoke(XMLDocument $document): XMLDocument
     {
         $xml = Document::fromUnsafeDocument($document);
         $xpath = $xml->xpath(new WsdlPreset($xml));
 
-        $imports = $xpath->query('wsdl:import')->expectAllOfType(DOMElement::class);
-        $imports->forEach(fn (DOMElement $import) => $this->importWsdlImportElement($import));
+        $imports = $xpath->query('wsdl:import')->expectAllOfType(Element::class);
+        $imports->forEach(fn (Element $import) => $this->importWsdlImportElement($import));
 
         return $document;
     }
@@ -55,10 +56,10 @@ final class FlattenWsdlImports implements Configurator
      * @throws RuntimeException
      * @throws UnloadableWsdlException
      */
-    private function importWsdlImportElement(DOMElement $import): void
+    private function importWsdlImportElement(Element $import): void
     {
         $location = IncludePathBuilder::build(
-            $import->getAttribute('location'),
+            $import->getAttribute('location') ?? '',
             $this->currentLocation
         );
 
@@ -79,11 +80,15 @@ final class FlattenWsdlImports implements Configurator
 
     /**
      * @throws RuntimeException
+     * @throws \Psl\Type\Exception\AssertException
      */
-    private function importWsdlPart(DOMElement $importElement, Document $importedDocument): void
+    private function importWsdlPart(Element $importElement, Document $importedDocument): void
     {
         $definitions = $importedDocument->map(document_element());
-        copy_named_xmlns_attributes($importElement->ownerDocument->documentElement, $definitions);
+        copy_named_xmlns_attributes(
+            document_element()(assert_document($importElement->ownerDocument)),
+            $definitions
+        );
 
         replace_by_external_nodes(
             $importElement,
@@ -94,7 +99,7 @@ final class FlattenWsdlImports implements Configurator
     /**
      * @throws RuntimeException
      */
-    private function importXsdPart(DOMElement $importElement, Document $importedDocument): void
+    private function importXsdPart(Element $importElement, Document $importedDocument): void
     {
         $types = $this->context->types();
         remove($importElement);

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Soap\Wsdl\Xml;
 
-use DOMDocument;
+use Dom\XMLDocument;
 use Soap\Wsdl\Loader\Context\FlatteningContext;
 use Soap\Wsdl\Xml\Configurator\FlattenTypes;
 use Soap\Wsdl\Xml\Configurator\FlattenWsdlImports;
@@ -13,6 +13,7 @@ use VeeWee\Xml\Exception\RuntimeException;
 use function Psl\Fun\pipe;
 use function Psl\Fun\when;
 use function VeeWee\Xml\Dom\Configurator\utf8;
+use function VeeWee\Xml\Dom\Locator\document_element;
 
 final class Flattener
 {
@@ -29,7 +30,7 @@ final class Flattener
             pipe(
                 utf8(),
                 when(
-                    static fn (DOMDocument $document): bool => $document->documentElement->localName === 'definitions',
+                    static fn (XMLDocument $document): bool => document_element()($document)->localName === 'definitions',
                     pipe(
                         (new FlattenWsdlImports($location, $context))(...),
                         (new FlattenTypes())(...),

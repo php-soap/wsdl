@@ -2,7 +2,7 @@
 
 namespace Soap\Wsdl\Xml\Visitor;
 
-use DOMNode;
+use Dom\Node;
 use VeeWee\Xml\Dom\Traverser\Action;
 use VeeWee\Xml\Dom\Traverser\Visitor;
 use function VeeWee\Xml\Dom\Predicate\is_attribute;
@@ -17,7 +17,7 @@ final class ReprefixTypeQname extends Visitor\AbstractVisitor
     ) {
     }
 
-    public function onNodeEnter(DOMNode $node): Action
+    public function onNodeEnter(Node $node): Action
     {
         if (!is_attribute($node) || $node->localName !== 'type') {
             return new Action\Noop();

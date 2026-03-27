@@ -3,14 +3,15 @@ declare(strict_types=1);
 
 namespace Soap\Wsdl\Xml\Configurator;
 
-use DOMDocument;
-use DOMElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Soap\Xml\Xmlns;
 use Soap\Xml\Xpath\WsdlPreset;
 use VeeWee\Xml\Dom\Configurator\Configurator;
 use VeeWee\Xml\Dom\Document;
 use VeeWee\Xml\Exception\RuntimeException;
 use function VeeWee\Xml\Dom\Builder\namespaced_element;
+use function VeeWee\Xml\Dom\Locator\document_element;
 use function VeeWee\Xml\Dom\Locator\Node\children;
 use function VeeWee\Xml\Dom\Manipulator\append;
 use function VeeWee\Xml\Dom\Manipulator\Node\remove;
@@ -24,16 +25,16 @@ final class FlattenTypes implements Configurator
     /**
      * @throws RuntimeException
      */
-    public function __invoke(DOMDocument $document): DOMDocument
+    public function __invoke(XMLDocument $document): XMLDocument
     {
         $xml = Document::fromUnsafeDocument($document);
         $xpath = $xml->xpath(new WsdlPreset($xml));
-        /** @var list<DOMElement> $types */
+        /** @var list<Element> $types */
         $types = [...$xpath->query('wsdl:types')];
 
         // Creates wsdl:types if no matching element exists yet
         if (!count($types)) {
-            $document->documentElement->append(
+            $xml->map(document_element())->append(
                 namespaced_element(Xmlns::wsdl()->value(), 'types')($document)
             );
 

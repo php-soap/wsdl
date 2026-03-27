@@ -7,7 +7,7 @@ jobs:
         strategy:
             matrix:
                 operating-system: [ubuntu-latest]
-                php-versions: ['8.3', '8.4', '8.5']
+                php-versions: ['8.4', '8.5']
                 composer-options: ['--ignore-platform-req=php+']
             fail-fast: false
         name: PHP ${{ matrix.php-versions }} @ ${{ matrix.operating-system }}
@@ -15,12 +15,19 @@ jobs:
             - name: Checkout
               uses: actions/checkout@master
             - name: Install PHP
-              uses: shivammathur/setup-php@master
+              uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php-versions }}
                   tools: 'composer:v2'
-                  extensions: pcov, mbstring, posix, dom, soap
+                  extensions: mbstring, posix, dom, soap
+                  coverage: pcov
+              env:
+                  update: true
+            - name: PHP info
+              run: |
+                  php -v
+                  php -i | grep -i libxml
             - name: Install dependencies
               run: composer update --prefer-dist --no-progress --no-suggest ${{ matrix.composer-options }}
             - name: Run the tests
-              run: ./vendor/bin/phpunit
+              run: php vendor/bin/phpunit

@@ -3,7 +3,7 @@
     errorLevel="1"
     resolveFromConfigFile="true"
     strictBinaryOperands="true"
-    phpVersion="8.1"
+    phpVersion="8.4"
     allowStringToStandInForClass="true"
     rememberPropertyAssignmentsAfterCall="false"
     skipChecksOnUnresolvableIncludes="false"
@@ -30,6 +30,6 @@
         <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin"/>
     </plugins>
     <stubs>
-        <file name="stubs/dom.phpstub" />
+        <file name="vendor/veewee/xml/stubs/DOM.phpstub" />
     </stubs>
 </psalm>

@@ -13,18 +13,18 @@
         <xsd:schema xmlns:imsw="http://www.immobinet.it/schema/WebserviceModAgenziaBundle" elementFormDefault="qualified" targetNamespace="http://www.immobinet.it/wsdl/WebserviceModAgenziaBundle">
             <xsd:import namespace="http://www.immobinet.it/schema/WebserviceCoreBundle"/>
         </xsd:schema>
-        <xsd:schema
+        <schema
             xmlns="http://www.w3.org/2001/XMLSchema"
             xmlns:imm="http://www.immobinet.it/schema/WebserviceCoreBundle"
             targetNamespace="http://www.immobinet.it/schema/WebserviceCoreBundle"
             elementFormDefault="qualified"
         >
-	        <xsd:complexType name="Auth">
-		        <xsd:sequence>
- 			        <xsd:element name="username" type="string" maxOccurs="1" minOccurs="1"/>
-			        <xsd:element name="password" type="string" maxOccurs="1" minOccurs="1"/>
-		        </xsd:sequence>
-	        </xsd:complexType>
-        </xsd:schema>
+	        <complexType name="Auth">
+		        <sequence>
+ 			        <element name="username" type="string" maxOccurs="1" minOccurs="1"/>
+			        <element name="password" type="string" maxOccurs="1" minOccurs="1"/>
+		        </sequence>
+	        </complexType>
+        </schema>
     </wsdl:types>
 </wsdl:definitions>

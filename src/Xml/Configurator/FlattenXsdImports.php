@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Soap\Wsdl\Xml\Configurator;
 
-use DOMDocument;
-use DOMElement;
-use DOMNode;
+use Dom\Element;
+use Dom\Node;
+use Dom\XMLDocument;
 use Psl\Type\Exception\AssertException;
 use Soap\Wsdl\Exception\UnloadableWsdlException;
 use Soap\Wsdl\Loader\Context\FlatteningContext;
 use Soap\Wsdl\Uri\IncludePathBuilder;
 use Soap\Wsdl\Xml\Exception\FlattenException;
-use Soap\Wsdl\Xml\Xmlns\FixRemovedDefaultXmlnsDeclarationsDuringImport;
 use Soap\Wsdl\Xml\Xmlns\RegisterNonConflictingXmlnsNamespaces;
 use Soap\Xml\Xpath\WsdlPreset;
 use VeeWee\Xml\Dom\Configurator\Configurator;
@@ -21,6 +20,7 @@ use VeeWee\Xml\Exception\RuntimeException;
 use function Psl\Type\instance_of;
 use function Psl\Type\nullable;
 use function Psl\Vec\reverse;
+use function VeeWee\Xml\Dom\Assert\assert_document;
 use function VeeWee\Xml\Dom\Assert\assert_element;
 use function VeeWee\Xml\Dom\Locator\Node\children;
 use function VeeWee\Xml\Dom\Manipulator\Node\append_external_node;
@@ -43,14 +43,14 @@ final class FlattenXsdImports implements Configurator
      * @throws UnloadableWsdlException
      * @throws FlattenException
      */
-    public function __invoke(DOMDocument $document): DOMDocument
+    public function __invoke(XMLDocument $document): XMLDocument
     {
         $xml = Document::fromUnsafeDocument($document);
         $xpath = $xml->xpath(new WsdlPreset($xml));
 
         $imports = $xpath
             ->query('//schema:import|//schema:include|//schema:redefine')
-            ->expectAllOfType(DOMElement::class);
+            ->expectAllOfType(Element::class);
 
         if (!count($imports)) {
             return $document;
@@ -76,11 +76,13 @@ final class FlattenXsdImports implements Configurator
      * @throws RuntimeException
      * @throws UnloadableWsdlException
      * @throws FlattenException
+     * @throws AssertException
      */
-    private function includeSchema(DOMElement $include): ?DOMElement
+    private function includeSchema(Element $include): ?Element
     {
-        // All includes and redefines require a schemLocation attribute
-        if (!$location = $include->getAttribute('schemaLocation')) {
+        // All includes and redefines require a schemaLocation attribute
+        $location = $include->getAttribute('schemaLocation');
+        if ($location === null) {
             throw FlattenException::noLocation($include->localName);
         }
 
@@ -96,7 +98,7 @@ final class FlattenXsdImports implements Configurator
 
         // Detect namespaces from both the current schema and the import
         $parentSchema = $this->detectParentSchemaNode($include);
-        $parentTns = $parentSchema->getAttribute('targetNamespace');
+        $parentTns = $parentSchema->getAttribute('targetNamespace') ?? '';
 
         $schema = $this->loadSchema($location);
         if ($schema) {
@@ -106,7 +108,7 @@ final class FlattenXsdImports implements Configurator
             }
 
             // Validate if the namespaces of the included document match the parent schema.
-            $schemaTns = $schema->getAttribute('targetNamespace');
+            $schemaTns = $schema->getAttribute('targetNamespace') ?? '';
             if ($schemaTns !== $parentTns) {
                 throw FlattenException::invalidIncludeTargetNamespace($parentTns, $schemaTns);
             }
@@ -115,7 +117,7 @@ final class FlattenXsdImports implements Configurator
             // The children of redefine elements are appended to the newly loaded schema.
             if ($include->localName === 'redefine') {
                 children($include)->map(
-                    static fn (DOMNode $node) => append_external_node($schema, $node)
+                    static fn (Node $node) => append_external_node($schema, $node)
                 );
             }
         }
@@ -131,12 +133,13 @@ final class FlattenXsdImports implements Configurator
      * @throws RuntimeException
      * @throws UnloadableWsdlException
      * @throws FlattenException
+     * @throws AssertException
      */
-    private function importSchema(DOMElement $import): ?DOMElement
+    private function importSchema(Element $import): ?Element
     {
         // xsd:import tags don't require a location!
         $location = $import->getAttribute('schemaLocation');
-        if (!$location) {
+        if ($location === null) {
             return null;
         }
 
@@ -147,7 +150,7 @@ final class FlattenXsdImports implements Configurator
 
         // Imports can only deal with different namespaces.
         // You'll need to use "include" if you want to inject something in the same namespace.
-        if ($parentTns && $namespace && $parentTns === $namespace) {
+        if ($parentTns !== null && $namespace !== null && $parentTns === $namespace) {
             throw FlattenException::unableToImportXsd($location);
         }
 
@@ -163,13 +166,14 @@ final class FlattenXsdImports implements Configurator
      * This function will return the parent declaring <schema /> tag for elements like import | include, ...
      *
      * @throws RuntimeException
+     * @throws \Psl\Type\Exception\AssertException
      */
-    private function detectParentSchemaNode(DOMElement $element): DOMElement
+    private function detectParentSchemaNode(Element $element): Element
     {
-        $parent = Document::fromUnsafeDocument($element->ownerDocument);
+        $parent = Document::fromUnsafeDocument(assert_document($element->ownerDocument));
         $xpath = $parent->xpath(new WsdlPreset($parent));
 
-        /** @var DOMElement */
+        /** @var Element */
         return $xpath->querySingle('ancestor::schema:schema', $element);
     }
 
@@ -177,7 +181,7 @@ final class FlattenXsdImports implements Configurator
      * @throws RuntimeException
      * @throws UnloadableWsdlException
      */
-    private function loadSchema(string $location): ?DOMElement
+    private function loadSchema(string $location): ?Element
     {
         $path = IncludePathBuilder::build($location, $this->currentLocation);
         $result = $this->context->import($path);
@@ -187,7 +191,7 @@ final class FlattenXsdImports implements Configurator
         }
 
         $imported = Document::fromXmlString($result);
-        /** @var DOMElement $schema */
+        /** @var Element $schema */
         $schema = $imported->xpath(new WsdlPreset($imported))->querySingle('/schema:schema');
 
         return $schema;
@@ -201,21 +205,20 @@ final class FlattenXsdImports implements Configurator
      * @throws RuntimeException
      * @throws AssertException
      */
-    private function registerSchemaInTypes(DOMElement $schema): void
+    private function registerSchemaInTypes(Element $schema): void
     {
         $wsdl = $this->context->wsdl();
         $xpath = $wsdl->xpath(new WsdlPreset($wsdl));
         $types = $this->context->types();
         $tns = $schema->getAttribute('targetNamespace');
 
-        $query = $tns ? './schema:schema[@targetNamespace=\''.$tns.'\']' : './schema:schema[not(@targetNamespace)]';
-        $existingSchema = nullable(instance_of(DOMElement::class))
+        $query = $tns !== null ? './schema:schema[@targetNamespace=\''.$tns.'\']' : './schema:schema[not(@targetNamespace)]';
+        $existingSchema = nullable(instance_of(Element::class))
             ->assert($xpath->query($query, $types)->first());
 
         // If no schema exists yet: Add the newly loaded schema as a completely new schema in the WSDL types.
         if (!$existingSchema) {
-            $imported = assert_element(append_external_node($types, $schema));
-            (new FixRemovedDefaultXmlnsDeclarationsDuringImport())($imported, $schema);
+            append_external_node($types, $schema);
             return;
         }
 
@@ -224,7 +227,7 @@ final class FlattenXsdImports implements Configurator
         // Finally - all children of the newly loaded schema can be appended to the existing schema.
         (new RegisterNonConflictingXmlnsNamespaces())($existingSchema, $schema);
         children($schema)->forEach(
-            static fn (DOMNode $node) => append_external_node($existingSchema, $node)
+            static fn (Node $node) => append_external_node($existingSchema, $node)
         );
     }
 
@@ -247,7 +250,7 @@ final class FlattenXsdImports implements Configurator
         $xpath = $xml->xpath(new WsdlPreset($xml));
         $imports = $xpath
             ->query('//schema:import')
-            ->expectAllOfType(DOMElement::class);
+            ->expectAllOfType(Element::class);
 
         foreach (reverse($imports) as $import) {
             $parentSchema = assert_element($import->parentNode);
