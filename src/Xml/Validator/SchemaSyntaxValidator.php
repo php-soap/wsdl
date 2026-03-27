@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Soap\Wsdl\Xml\Validator;
 
-use DOMDocument;
-use DOMElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Soap\Xml\Xpath\WsdlPreset;
 use VeeWee\Xml\Dom\Document;
 use VeeWee\Xml\Dom\Validator\Validator;
@@ -28,16 +28,16 @@ final class SchemaSyntaxValidator implements Validator
     /**
      * @throws RuntimeException
      */
-    public function __invoke(DOMDocument $document): IssueCollection
+    public function __invoke(XMLDocument $document): IssueCollection
     {
         $xml = Document::fromUnsafeDocument($document);
         $xpath = $xml->xpath(new WsdlPreset($xml));
 
         return $xpath
             ->query('//schema:schema')
-            ->expectAllOfType(DOMElement::class)
+            ->expectAllOfType(Element::class)
             ->reduce(
-                fn (IssueCollection $issues, DOMElement $schema) => new IssueCollection(
+                fn (IssueCollection $issues, Element $schema) => new IssueCollection(
                     ...$issues,
                     ...Document::fromXmlNode($schema)->validate(xsd_validator($this->xsd))
                 ),

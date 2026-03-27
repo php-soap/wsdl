@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Soap\Wsdl\Xml\Validator;
 
-use DOMDocument;
+use Dom\XMLDocument;
 use VeeWee\Xml\Dom\Document;
 use VeeWee\Xml\Dom\Validator\Validator;
 use VeeWee\Xml\ErrorHandling\Issue\IssueCollection;
@@ -26,7 +26,7 @@ final class WsdlSyntaxValidator implements Validator
     /**
      * @throws RuntimeException
      */
-    public function __invoke(DOMDocument $document): IssueCollection
+    public function __invoke(XMLDocument $document): IssueCollection
     {
         return Document::fromUnsafeDocument($document)->validate(xsd_validator($this->xsd));
     }

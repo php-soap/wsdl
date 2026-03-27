@@ -22,7 +22,11 @@ final class FlattenXsdImportsTest extends TestCase
             $wsdl,
             FlatteningContext::forWsdl($wsdl, $wsdlDoc, new StreamWrapperLoader())
         );
-        $flattened = Document::fromUnsafeDocument($wsdlDoc->toUnsafeDocument(), $configurator, $xmlConfigurator);
+        $flattened = Document::fromUnsafeDocument($wsdlDoc->toUnsafeDocument(), $configurator);
+
+        // Round-trip through string to normalize namespace serialization
+        // (DOM-built documents may serialize default xmlns differently than parsed ones)
+        $flattened = Document::fromXmlString($flattened->toXmlString(), $xmlConfigurator);
 
         static::assertSame($expected->reconfigure($xmlConfigurator)->toXmlString(), $flattened->toXmlString());
     }

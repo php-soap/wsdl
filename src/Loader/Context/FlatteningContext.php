@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Soap\Wsdl\Loader\Context;
 
-use DOMElement;
+use Dom\Element;
 use Psl\Type\Exception\AssertException;
 use Soap\Wsdl\Exception\UnloadableWsdlException;
 use Soap\Wsdl\Loader\WsdlLoader;
@@ -79,12 +79,12 @@ final class FlatteningContext
      *
      * @throws RuntimeException
      */
-    public function types(): DOMElement
+    public function types(): Element
     {
         $doc = Document::fromUnsafeDocument($this->wsdl->toUnsafeDocument(), new FlattenTypes());
         $xpath = $doc->xpath(new WsdlPreset($doc));
 
-        /** @var DOMElement $types */
+        /** @var Element $types */
         $types = $xpath->querySingle('//wsdl:types');
 
         return $types;
