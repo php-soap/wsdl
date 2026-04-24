@@ -5,8 +5,11 @@ namespace Soap\Wsdl\Test\Unit\Loader;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psl\Ref;
+use Soap\Wsdl\Exception\UnloadableWsdlException;
 use Soap\Wsdl\Loader\FlatteningLoader;
 use Soap\Wsdl\Loader\StreamWrapperLoader;
+use Soap\Wsdl\Loader\WsdlLoader;
 use VeeWee\Xml\Dom\Document;
 use function VeeWee\Xml\Dom\Configurator\comparable;
 
@@ -26,6 +29,70 @@ final class FlatteningLoaderTest extends TestCase
         $flattened = Document::fromXmlString($result, comparable());
 
         static::assertSame($expected->toXmlString(), $flattened->toXmlString());
+    }
+
+    public function test_it_resolves_imports_when_given_a_relative_path(): void
+    {
+        $cwd = getcwd();
+        chdir(FIXTURE_DIR.'/flattening');
+        try {
+            $result = ($this->loader)('single-xsd.wsdl');
+        } finally {
+            chdir($cwd);
+        }
+
+        $flattened = Document::fromXmlString($result, comparable());
+        $expected = Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/single-xsd-result.wsdl', comparable());
+
+        static::assertSame($expected->toXmlString(), $flattened->toXmlString());
+    }
+
+    public function test_it_leaves_uri_scheme_locations_untouched(): void
+    {
+        $result = ($this->loader)('file://'.FIXTURE_DIR.'/flattening/single-xsd.wsdl');
+        $flattened = Document::fromXmlString($result, comparable());
+        $expected = Document::fromXmlFile(FIXTURE_DIR.'/flattening/result/single-xsd-result.wsdl', comparable());
+
+        static::assertSame($expected->toXmlString(), $flattened->toXmlString());
+    }
+
+    public function test_it_throws_when_given_a_non_existing_relative_path(): void
+    {
+        $this->expectException(UnloadableWsdlException::class);
+        ($this->loader)('does-not-exist.wsdl');
+    }
+
+    #[DataProvider('provideSchemeLocations')]
+    public function test_it_forwards_uri_scheme_locations_unchanged(string $location): void
+    {
+        /** @var Ref<?string> $captured */
+        $captured = new Ref(null);
+        $capturingLoader = new class($captured) implements WsdlLoader {
+            public function __construct(private Ref $captured)
+            {
+            }
+            public function __invoke(string $location): string
+            {
+                $this->captured->value = $location;
+                return '<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>';
+            }
+        };
+
+        (new FlatteningLoader($capturingLoader))($location);
+
+        static::assertSame($location, $captured->value);
+    }
+
+    public static function provideSchemeLocations(): iterable
+    {
+        yield 'http' => ['http://example.com/service.wsdl'];
+        yield 'https' => ['https://example.com/service.wsdl'];
+        yield 'file' => ['file:///tmp/service.wsdl'];
+        yield 'ftp' => ['ftp://example.com/service.wsdl'];
+        yield 'scheme-with-plus' => ['svn+ssh://example.com/service.wsdl'];
+        yield 'scheme-with-dot' => ['x.y://example.com/service.wsdl'];
+        yield 'scheme-with-dash' => ['x-y://example.com/service.wsdl'];
+        yield 'mixed-case-scheme' => ['HTTP://example.com/service.wsdl'];
     }
 
     public static function provideTestCases()
