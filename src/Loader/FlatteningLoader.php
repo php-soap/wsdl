@@ -37,6 +37,8 @@ final class FlatteningLoader implements WsdlLoader
     /**
      * Ensures the base location used for resolving imports is absolute.
      * Why: league/uri >= 7.6 throws when resolving a relative reference against a non-absolute base.
+     *
+     * @throws UnloadableWsdlException
      */
     private static function normalizeLocation(string $location): string
     {

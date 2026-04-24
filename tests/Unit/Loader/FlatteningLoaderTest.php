@@ -67,8 +67,10 @@ final class FlatteningLoaderTest extends TestCase
     {
         /** @var Ref<?string> $captured */
         $captured = new Ref(null);
-        $capturingLoader = new class ($captured) implements WsdlLoader {
-            public function __construct(private Ref $captured) {}
+        $capturingLoader = new class($captured) implements WsdlLoader {
+            public function __construct(private Ref $captured)
+            {
+            }
             public function __invoke(string $location): string
             {
                 $this->captured->value = $location;
