@@ -25,11 +25,30 @@ final class FlatteningLoader implements WsdlLoader
      */
     public function __invoke(string $location): string
     {
+        $location = self::normalizeLocation($location);
         $currentDoc = Document::fromXmlString(
             non_empty_string()->assert(($this->loader)($location))
         );
         $context = FlatteningContext::forWsdl($location, $currentDoc, $this->loader);
 
         return (new Flattener())($location, $currentDoc, $context);
+    }
+
+    /**
+     * Ensures the base location used for resolving imports is absolute.
+     * Why: league/uri >= 7.6 throws when resolving a relative reference against a non-absolute base.
+     */
+    private static function normalizeLocation(string $location): string
+    {
+        if (preg_match('#^[a-z][a-z0-9+.\-]*:#i', $location) === 1) {
+            return $location;
+        }
+
+        $absolute = realpath($location);
+        if ($absolute === false) {
+            throw UnloadableWsdlException::fromLocation($location);
+        }
+
+        return $absolute;
     }
 }
