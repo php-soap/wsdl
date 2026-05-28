@@ -22,6 +22,19 @@ final class FlatteningLoaderTest extends TestCase
         $this->loader = new FlatteningLoader(new StreamWrapperLoader());
     }
 
+    public function test_it_throws_when_content_is_empty(): void
+    {
+        $emptyLoader = new class implements WsdlLoader {
+            public function __invoke(string $location): string
+            {
+                return '';
+            }
+        };
+        $this->expectException(UnloadableWsdlException::class);
+
+        (new FlatteningLoader($emptyLoader))('http://example.com/service.wsdl');
+    }
+
     #[DataProvider('provideTestCases')]
     public function test_it_can_load_flattened_imports(string $wsdl, Document $expected): void
     {

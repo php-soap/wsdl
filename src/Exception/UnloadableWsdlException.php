@@ -23,4 +23,9 @@ final class UnloadableWsdlException extends RuntimeException
     {
         return new self($e->getMessage(), (int)$e->getCode(), $e);
     }
+
+    public static function noContentAt(string $location): self
+    {
+        return new self('WSDL at location "'.$location.'" returned no content.');
+    }
 }
