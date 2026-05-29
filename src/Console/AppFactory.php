@@ -8,7 +8,7 @@ use Symfony\Component\Console\Exception\LogicException;
 
 final class AppFactory
 {
-    private const APP_VERSION = '1.21.0';
+    private const APP_VERSION = '1.22.0';
 
     /**
      * @psalm-suppress UndefinedClass
