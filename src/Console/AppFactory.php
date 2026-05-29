@@ -8,6 +8,8 @@ use Symfony\Component\Console\Exception\LogicException;
 
 final class AppFactory
 {
+    private const APP_VERSION = '1.21.0';
+
     /**
      * @psalm-suppress UndefinedClass
      * @var list<class-string>
@@ -21,7 +23,7 @@ final class AppFactory
      */
     public static function create(): Application
     {
-        $app = new Application('wsdl-tools', '1.0.0');
+        $app = new Application('wsdl-tools', self::APP_VERSION);
         $app->addCommands([
             new Command\FlattenCommand(),
             new Command\ValidateCommand(),
