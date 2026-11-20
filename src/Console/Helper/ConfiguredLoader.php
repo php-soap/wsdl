@@ -29,7 +29,6 @@ final class ConfiguredLoader
             invariant(Filesystem\is_file($file), 'File "%s" is not a file.', $file);
             invariant(Filesystem\is_readable($file), 'File "%s" is not readable.', $file);
 
-            /** @var WsdlLoader $included */
             $included = require $file;
 
             $loader = instance_of(WsdlLoader::class)->assert($included);
