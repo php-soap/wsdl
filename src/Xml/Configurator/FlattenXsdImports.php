@@ -39,9 +39,11 @@ final class FlattenXsdImports implements Configurator
     }
 
     /**
+     * @throws \RuntimeException
      * @throws RuntimeException
      * @throws UnloadableWsdlException
      * @throws FlattenException
+     * @throws AssertException
      */
     public function __invoke(XMLDocument $document): XMLDocument
     {
@@ -244,6 +246,7 @@ final class FlattenXsdImports implements Configurator
      * </schema>
      *
      * @throws RuntimeException
+     * @throws AssertException
      */
     private function rearrangeImportsAsFirstElements(Document $xml): void
     {

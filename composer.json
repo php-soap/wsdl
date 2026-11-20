@@ -26,7 +26,7 @@
         "sort-packages": true
     },
     "require": {
-        "php": "~8.4.0 || ~8.5.0",
+        "php": "~8.4.0 || ~8.5.0 || ~8.6.0",
         "ext-dom": "*",
         "league/uri": "^7.0",
         "league/uri-components": "^7.0",
@@ -45,8 +45,8 @@
     },
     "require-dev": {
         "php-cs-fixer/shim": "^3.88",
-        "phpunit/phpunit": "^12.3 || ^13.0",
-        "psalm/plugin-symfony": "^5.0",
-        "vimeo/psalm": "^6.13"
+        "phpunit/phpunit": "^13.4",
+        "psalm/plugin-symfony": "^5.12",
+        "vimeo/psalm": "^7.12"
     }
 }
