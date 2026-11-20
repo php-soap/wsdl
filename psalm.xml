@@ -27,7 +27,9 @@
         <class name="Psl\Exception\InvariantViolationException"/>
     </ignoreExceptions>
     <plugins>
-        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin"/>
+        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin">
+            <symfonyMajorVersion>8</symfonyMajorVersion>
+        </pluginClass>
     </plugins>
     <stubs>
         <file name="vendor/veewee/xml/stubs/DOM.phpstub" />

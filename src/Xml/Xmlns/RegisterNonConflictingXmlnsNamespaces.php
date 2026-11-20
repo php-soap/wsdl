@@ -118,6 +118,7 @@ final class RegisterNonConflictingXmlnsNamespaces
         string $prefix,
         string $namespaceURI
     ): Option {
+        /** @psalm-suppress WeakHash - The hash only builds a short unique prefix, it has no security purpose. */
         $uniquePrefix = 'ns' . substr(md5($namespaceURI), 0, 8);
         if ($existingSchema->hasAttribute('xmlns:'.$uniquePrefix)) {
             /** @var Option<RePrefixMap> */
